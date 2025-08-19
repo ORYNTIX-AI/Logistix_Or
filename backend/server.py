@@ -600,23 +600,45 @@ async def search_shipments(query: SearchQuery):
                 except:
                     return {"message": "Получен ответ от webhook", "data": response.text}
             else:
-                return {"error": f"Webhook returned status {response.status_code}"}
+                # If webhook is not available, return fallback data
+                raise Exception(f"Webhook returned status {response.status_code}")
     except Exception as e:
         # Fallback to mock data if webhook fails
-        return [{
-            "id": str(uuid.uuid4()),
-            "origin_port": query.origin_port,
-            "destination_port": query.destination_port,
-            "carrier": "RZD Express",
-            "departure_date_range": f"{query.departure_date_from.strftime('%d.%m')} - {query.departure_date_to.strftime('%d.%m.%Y')}",
-            "transit_time_days": 15,
-            "container_type": query.container_type,
-            "price_from_usd": 950.0,
-            "is_dangerous_cargo": query.is_dangerous_cargo,
-            "available_containers": 5,
-            "booking_deadline": query.departure_date_from.isoformat(),
-            "webhook_error": str(e)
-        }]
+        fallback_results = []
+        
+        # Generate different routes based on popular railway directions
+        routes_data = [
+            {"carrier": "China Railways Express", "base_price": 950, "transit_days": 15, "route_desc": "Популярный маршрут"},
+            {"carrier": "New Silk Road Express", "base_price": 1080, "transit_days": 18, "route_desc": "Прямое сообщение"},
+            {"carrier": "RZD Logistics", "base_price": 850, "transit_days": 12, "route_desc": "Быстрая доставка"}
+        ]
+        
+        for i, route in enumerate(routes_data):
+            # Add price variation for dangerous cargo
+            price = route["base_price"]
+            if query.is_dangerous_cargo:
+                price = int(price * 1.3)  # 30% markup for dangerous cargo
+                
+            # Add volume discount for multiple containers
+            if query.containers_count > 1:
+                price = int(price * 0.95 * query.containers_count)  # 5% discount per container
+            
+            fallback_results.append({
+                "id": str(uuid.uuid4()),
+                "origin_port": query.origin_port,
+                "destination_port": query.destination_port,
+                "carrier": route["carrier"],
+                "departure_date_range": f"{query.departure_date_from.strftime('%d.%m')} - {query.departure_date_to.strftime('%d.%m.%Y')}",
+                "transit_time_days": route["transit_days"],
+                "container_type": query.container_type,
+                "price_from_usd": float(price),
+                "is_dangerous_cargo": query.is_dangerous_cargo,
+                "available_containers": 5 + i,
+                "booking_deadline": query.departure_date_from.isoformat(),
+                "webhook_error": "Тестовые данные (webhook недоступен)"
+            })
+            
+        return fallback_results
 
 # User registration
 @api_router.post("/register")
