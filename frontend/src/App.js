@@ -46,6 +46,12 @@ const SearchForm = ({ onSearch, loading }) => {
     cargo_weight_kg: '',
     cargo_volume_m3: ''
   });
+  
+  // Display names for user-friendly interface
+  const [displayNames, setDisplayNames] = useState({
+    origin_port_display: '',
+    destination_port_display: ''
+  });
 
   const [ports, setPorts] = useState([]);
   const [containerTypes, setContainerTypes] = useState([]);
