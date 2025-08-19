@@ -360,6 +360,10 @@ const SearchForm = ({ onSearch, loading }) => {
 
 // Search Results Component
 const SearchResults = ({ results, loading }) => {
+  // Debug info
+  console.log('SearchResults component - results:', results);
+  console.log('SearchResults component - loading:', loading);
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-12">
@@ -372,7 +376,16 @@ const SearchResults = ({ results, loading }) => {
   }
 
   if (!results || results.length === 0) {
-    return null;
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="text-center">
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+            <p>Результаты поиска не найдены или не загрузились.</p>
+            <p className="text-sm mt-2">Попробуйте изменить параметры поиска.</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
