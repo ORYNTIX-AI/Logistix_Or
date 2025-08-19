@@ -97,8 +97,21 @@ const SearchForm = ({ onSearch, loading }) => {
       return;
     }
     
-    console.log('Search data being sent:', searchData);
-    onSearch(searchData);
+    // Ensure all required fields are included with proper defaults
+    const submitData = {
+      origin_port: searchData.origin_port,
+      destination_port: searchData.destination_port,
+      departure_date_from: searchData.departure_date_from,
+      departure_date_to: searchData.departure_date_to,
+      container_type: searchData.container_type,
+      is_dangerous_cargo: Boolean(searchData.is_dangerous_cargo),
+      containers_count: parseInt(searchData.containers_count) || 1,
+      cargo_weight_kg: searchData.cargo_weight_kg ? parseInt(searchData.cargo_weight_kg) : null,
+      cargo_volume_m3: searchData.cargo_volume_m3 ? parseInt(searchData.cargo_volume_m3) : null
+    };
+    
+    console.log('Search data being sent:', submitData);
+    onSearch(submitData);
   };
 
   const handleChange = (field, value) => {
