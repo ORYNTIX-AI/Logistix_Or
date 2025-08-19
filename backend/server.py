@@ -568,6 +568,9 @@ async def get_ports():
 
 @api_router.post("/search")
 async def search_shipments(query: SearchQuery):
+    print(f"🔍 DEBUG: Received search query: {query}")
+    print(f"🔍 DEBUG: Origin port: '{query.origin_port}', Destination: '{query.destination_port}'")
+    
     # Get webhook settings
     webhook_settings = await db.webhook_settings.find_one()
     if not webhook_settings:
