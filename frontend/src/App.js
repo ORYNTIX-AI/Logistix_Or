@@ -206,9 +206,9 @@ const SearchForm = ({ onSearch, loading }) => {
             </label>
             <input
               type="text"
-              value={searchData.destination_port}
+              value={displayNames.destination_port_display}
               onChange={(e) => handleDestChange(e.target.value)}
-              onFocus={() => handleDestChange(searchData.destination_port)}
+              onFocus={() => handleDestChange(displayNames.destination_port_display)}
               onBlur={() => setTimeout(() => setShowDestSuggestions(false), 200)}
               placeholder="Введите станцию (например: Минск)"
               className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
