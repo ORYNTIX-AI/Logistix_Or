@@ -74,38 +74,25 @@ const SearchForm = ({ onSearch, loading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Find port codes from names or direct codes
-    const findPortByNameOrCode = (input) => {
-      return ports.find(p => 
-        p.name.toLowerCase() === input.toLowerCase() ||
-        p.city.toLowerCase() === input.toLowerCase() ||
-        p.code.toLowerCase() === input.toLowerCase() ||
-        p.name.toLowerCase().includes(input.toLowerCase()) ||
-        p.city.toLowerCase().includes(input.toLowerCase())
-      );
-    };
     
-    const originPort = findPortByNameOrCode(searchData.origin_port);
-    const destPort = findPortByNameOrCode(searchData.destination_port);
-    
-    if (!originPort) {
-      alert(`Порт отправления "${searchData.origin_port}" не найден. Пожалуйста, выберите из предложенных вариантов.`);
+    // Basic validation - just check if ports are selected (should be codes now)
+    if (!searchData.origin_port || searchData.origin_port.length < 2) {
+      alert('Пожалуйста, выберите станцию отправления из списка');
       return;
     }
     
-    if (!destPort) {
-      alert(`Порт назначения "${searchData.destination_port}" не найден. Пожалуйста, выберите из предложенных вариантов.`);
+    if (!searchData.destination_port || searchData.destination_port.length < 2) {
+      alert('Пожалуйста, выберите станцию назначения из списка');
       return;
     }
     
-    const finalSearchData = {
-      ...searchData,
-      origin_port: originPort.code,
-      destination_port: destPort.code
-    };
+    if (searchData.origin_port === searchData.destination_port) {
+      alert('Станция отправления и назначения не могут совпадать');
+      return;
+    }
     
-    console.log('Search data being sent:', finalSearchData);
-    onSearch(finalSearchData);
+    console.log('Search data being sent:', searchData);
+    onSearch(searchData);
   };
 
   const handleChange = (field, value) => {
