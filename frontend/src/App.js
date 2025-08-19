@@ -134,12 +134,14 @@ const SearchForm = ({ onSearch, loading }) => {
   };
 
   const selectOriginPort = (port) => {
-    handleChange('origin_port', port.code); // Store port code instead of name
+    handleChange('origin_port', port.code); // Store port code for API
+    setDisplayNames(prev => ({ ...prev, origin_port_display: port.name })); // Store display name
     setShowOriginSuggestions(false);
   };
 
   const selectDestPort = (port) => {
-    handleChange('destination_port', port.code); // Store port code instead of name
+    handleChange('destination_port', port.code); // Store port code for API
+    setDisplayNames(prev => ({ ...prev, destination_port_display: port.name })); // Store display name
     setShowDestSuggestions(false);
   };
 
