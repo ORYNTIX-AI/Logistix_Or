@@ -171,9 +171,9 @@ const SearchForm = ({ onSearch, loading }) => {
             </label>
             <input
               type="text"
-              value={searchData.origin_port}
+              value={displayNames.origin_port_display}
               onChange={(e) => handleOriginChange(e.target.value)}
-              onFocus={() => handleOriginChange(searchData.origin_port)}
+              onFocus={() => handleOriginChange(displayNames.origin_port_display)}
               onBlur={() => setTimeout(() => setShowOriginSuggestions(false), 200)}
               placeholder="Введите станцию (например: Чэнду)"
               className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
