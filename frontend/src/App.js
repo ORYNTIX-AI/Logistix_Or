@@ -120,14 +120,22 @@ const SearchForm = ({ onSearch, loading }) => {
   };
 
   const handleOriginChange = (value) => {
-    handleChange('origin_port', value);
+    setDisplayNames(prev => ({ ...prev, origin_port_display: value })); // Update display
+    // Clear the actual port code when user starts typing
+    if (value !== displayNames.origin_port_display) {
+      handleChange('origin_port', ''); 
+    }
     const suggestions = filterPorts(value, searchData.destination_port);
     setOriginSuggestions(suggestions);
     setShowOriginSuggestions(value.length > 0 && suggestions.length > 0);
   };
 
   const handleDestChange = (value) => {
-    handleChange('destination_port', value);
+    setDisplayNames(prev => ({ ...prev, destination_port_display: value })); // Update display  
+    // Clear the actual port code when user starts typing
+    if (value !== displayNames.destination_port_display) {
+      handleChange('destination_port', '');
+    }
     const suggestions = filterPorts(value, searchData.origin_port);
     setDestSuggestions(suggestions);
     setShowDestSuggestions(value.length > 0 && suggestions.length > 0);
