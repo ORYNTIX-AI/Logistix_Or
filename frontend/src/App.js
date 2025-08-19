@@ -981,12 +981,15 @@ const App = () => {
   const [userEmail, setUserEmail] = useState(localStorage.getItem('user_email'));
 
   const handleSearch = async (searchData) => {
+    console.log('🔍 Frontend handleSearch called with:', searchData);
     setLoading(true);
     try {
       const response = await axios.post(`${API}/search`, searchData);
+      console.log('✅ Search response received:', response.data);
       setSearchResults(response.data);
     } catch (error) {
-      console.error('Ошибка поиска:', error);
+      console.error('❌ Search error:', error);
+      console.error('❌ Error response:', error.response?.data);
       alert('Ошибка при поиске. Попробуйте еще раз.');
       setSearchResults([]);
     } finally {
