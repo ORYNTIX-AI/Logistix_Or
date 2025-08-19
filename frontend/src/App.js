@@ -141,12 +141,12 @@ const SearchForm = ({ onSearch, loading }) => {
   };
 
   const selectOriginPort = (port) => {
-    handleChange('origin_port', port.name);
+    handleChange('origin_port', port.code); // Store port code instead of name
     setShowOriginSuggestions(false);
   };
 
   const selectDestPort = (port) => {
-    handleChange('destination_port', port.name);
+    handleChange('destination_port', port.code); // Store port code instead of name
     setShowDestSuggestions(false);
   };
 
