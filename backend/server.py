@@ -698,7 +698,7 @@ async def register_user(user_data: UserRegistration):
 async def get_webhook_settings(current_admin: str = Depends(get_current_admin)):
     settings = await db.webhook_settings.find_one()
     if not settings:
-        return {"webhook_url": "https://tempbust.app.n8n.cloud/webhook/search"}
+        return {"webhook_url": "https://beautechflow.store/webhook/search"}
     return {"webhook_url": settings["webhook_url"]}
 
 @api_router.post("/admin/webhook")
