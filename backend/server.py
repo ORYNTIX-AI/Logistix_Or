@@ -592,9 +592,26 @@ async def search_shipments(query: SearchQuery):
     origin_city = origin_port_doc["city"] if origin_port_doc else query.origin_port
     dest_city = dest_port_doc["city"] if dest_port_doc else query.destination_port
     
+    # Map city names to webhook expected format
+    city_mapping = {
+        "Чэнду": "Chengdu",
+        "Гуанчжоу": "Guangzhou", 
+        "Шанхай": "Shanghai",
+        "Шэньчжэнь": "Shenzhen",
+        "Пекин": "Beijing",
+        "Минск": "Minsk",
+        "Москва": "Moscow",
+        "Санкт-Петербург": "Saint Petersburg",
+        "Алматы": "Almaty",
+        "Ташкент": "Tashkent"
+    }
+    
+    webhook_from = city_mapping.get(origin_city, origin_city)
+    webhook_to = city_mapping.get(dest_city, dest_city)
+    
     webhook_params = {
-        "from": origin_city,  # Send city name for webhook
-        "to": dest_city,  # Send city name for webhook  
+        "from": webhook_from,  # Send mapped city name for webhook
+        "to": webhook_to,  # Send mapped city name for webhook  
         "container_size": container_size_map.get(query.container_type, "20"),
         "price": "5100",  # Base price for filtering
         "ETD": query.departure_date_from.isoformat(),
