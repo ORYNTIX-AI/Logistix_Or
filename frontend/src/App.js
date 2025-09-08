@@ -958,7 +958,7 @@ const AdminPanel = ({ token, onLogout, onBack }) => {
                     className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Текущий URL по умолчанию: https://tempbust.app.n8n.cloud/webhook/search
+                    Текущий URL по умолчанию: https://beautechflow.store/webhook/search
                   </p>
                 </div>
 
