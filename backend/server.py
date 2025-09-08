@@ -584,9 +584,17 @@ async def search_shipments(query: SearchQuery):
         "40ft": "40"
     }
     
+    # Convert port codes to city names for webhook API
+    # Find port info by code to get city name
+    origin_port_doc = await db.ports.find_one({"code": query.origin_port})
+    dest_port_doc = await db.ports.find_one({"code": query.destination_port})
+    
+    origin_city = origin_port_doc["city"] if origin_port_doc else query.origin_port
+    dest_city = dest_port_doc["city"] if dest_port_doc else query.destination_port
+    
     webhook_params = {
-        "from": query.origin_port,  # Send port code as from
-        "to": query.destination_port,  # Send port code as to
+        "from": origin_city,  # Send city name for webhook
+        "to": dest_city,  # Send city name for webhook  
         "container_size": container_size_map.get(query.container_type, "20"),
         "price": "5100",  # Base price for filtering
         "ETD": query.departure_date_from.isoformat(),
