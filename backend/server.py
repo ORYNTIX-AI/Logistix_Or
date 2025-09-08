@@ -569,51 +569,89 @@ async def get_ports():
 @api_router.post("/search")
 async def search_shipments(query: SearchQuery):
     print(f"🔍 DEBUG: Received search query: {query}")
-    print(f"🔍 DEBUG: Origin port: '{query.origin_port}', Destination: '{query.destination_port}'")
     
     # Get webhook settings
     webhook_settings = await db.webhook_settings.find_one()
     if not webhook_settings:
-        webhook_url = "https://tempbust.app.n8n.cloud/webhook/search"  # Default webhook
+        webhook_url = "https://beautechflow.store/webhook/search"  # New default webhook
     else:
         webhook_url = webhook_settings["webhook_url"]
     
-    # Prepare webhook data
-    webhook_data = {
-        "origin_port": query.origin_port,
-        "destination_port": query.destination_port,
-        "departure_date_from": query.departure_date_from.isoformat(),
-        "departure_date_to": query.departure_date_to.isoformat(),
-        "container_type": query.container_type,
-        "is_dangerous_cargo": query.is_dangerous_cargo,
-        "containers_count": query.containers_count,
-        "cargo_weight_kg": query.cargo_weight_kg,
-        "cargo_volume_m3": query.cargo_volume_m3
+    # Convert our data format to webhook API format
+    # Map container type to size number
+    container_size_map = {
+        "20ft": "20",
+        "40ft": "40"
     }
+    
+    webhook_params = {
+        "from": query.origin_port,  # Send port code as from
+        "to": query.destination_port,  # Send port code as to
+        "container_size": container_size_map.get(query.container_type, "20"),
+        "price": "5100",  # Base price for filtering
+        "ETD": query.departure_date_from.isoformat(),
+        "TT": "35"  # Default transit time
+    }
+    
+    print(f"🌐 DEBUG: Sending to webhook: {webhook_url} with params: {webhook_params}")
     
     try:
         # Send GET request to webhook with query parameters
         import httpx
         async with httpx.AsyncClient() as client:
-            response = await client.get(webhook_url, params=webhook_data, timeout=30)
+            response = await client.get(webhook_url, params=webhook_params, timeout=30)
+            print(f"📡 DEBUG: Webhook response status: {response.status_code}")
+            
             if response.status_code == 200:
                 try:
-                    webhook_response = response.json()
-                    return webhook_response
-                except:
-                    return {"message": "Получен ответ от webhook", "data": response.text}
+                    webhook_data = response.json()
+                    print(f"📊 DEBUG: Webhook returned: {webhook_data}")
+                    
+                    # Convert webhook format to our format
+                    results = []
+                    if "result" in webhook_data and isinstance(webhook_data["result"], list):
+                        for item in webhook_data["result"]:
+                            # Convert webhook result to our SearchResult format
+                            result = {
+                                "id": item.get("id", str(uuid.uuid4())),
+                                "origin_port": item.get("from", query.origin_port),
+                                "destination_port": item.get("to", query.destination_port),
+                                "carrier": "Railway Express",  # Default carrier
+                                "departure_date_range": f"{query.departure_date_from.strftime('%d.%m')} - {query.departure_date_to.strftime('%d.%m.%Y')}",
+                                "transit_time_days": item.get("TT") or 15,
+                                "container_type": query.container_type,
+                                "price_from_usd": float(item.get("price", 0)),
+                                "is_dangerous_cargo": query.is_dangerous_cargo,
+                                "available_containers": 5,
+                                "booking_deadline": query.departure_date_from.isoformat(),
+                                "webhook_success": True
+                            }
+                            results.append(result)
+                    
+                    if results:
+                        return results
+                    else:
+                        # If no results from webhook, raise exception to trigger fallback
+                        raise Exception("No results from webhook")
+                        
+                except Exception as e:
+                    print(f"❌ DEBUG: Error processing webhook response: {e}")
+                    # Fall through to fallback
+                    raise Exception(f"Webhook response processing error: {e}")
             else:
-                # If webhook is not available, return fallback data
+                # If webhook is not available, trigger fallback
                 raise Exception(f"Webhook returned status {response.status_code}")
+                
     except Exception as e:
+        print(f"⚠️ DEBUG: Webhook failed, using fallback data: {e}")
         # Fallback to mock data if webhook fails
         fallback_results = []
         
         # Generate different routes based on popular railway directions
         routes_data = [
-            {"carrier": "China Railways Express", "base_price": 950, "transit_days": 15, "route_desc": "Популярный маршрут"},
-            {"carrier": "New Silk Road Express", "base_price": 1080, "transit_days": 18, "route_desc": "Прямое сообщение"},
-            {"carrier": "RZD Logistics", "base_price": 850, "transit_days": 12, "route_desc": "Быстрая доставка"}
+            {"carrier": "China Railways Express", "base_price": 4750, "transit_days": 15, "route_desc": "Популярный маршрут"},
+            {"carrier": "New Silk Road Express", "base_price": 4700, "transit_days": 18, "route_desc": "Прямое сообщение"},
+            {"carrier": "RZD Logistics", "base_price": 5200, "transit_days": 12, "route_desc": "Быстрая доставка"}
         ]
         
         for i, route in enumerate(routes_data):
