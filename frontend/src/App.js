@@ -973,7 +973,7 @@ const AdminPanel = ({ token, onLogout, onBack }) => {
               <div className="mt-8 p-4 bg-gray-50 rounded-lg">
                 <h4 className="font-semibold text-gray-700 mb-3">Пример параметров запроса:</h4>
                 <code className="text-xs bg-white p-3 rounded border block">
-                  GET {webhookUrl || 'https://example.com/webhook/search'}?origin_port=CTU&destination_port=LED&departure_date_from=2025-07-30&departure_date_to=2025-08-06&container_type=20ft&is_dangerous_cargo=false&containers_count=1
+                  GET {webhookUrl || 'https://beautechflow.store/webhook/search'}?from=CTU&to=MSQ&container_size=20&price=5100&ETD=2025-08-01&TT=15
                 </code>
               </div>
             </div>
