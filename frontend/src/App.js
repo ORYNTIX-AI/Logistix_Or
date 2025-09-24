@@ -82,15 +82,28 @@ const SearchForm = ({ onSearch, loading }) => {
     e.preventDefault();
     
     // Basic validation - just check if ports are selected (should be codes now)
-    if (!searchData.origin_port || searchData.origin_port.length < 2) {
-      alert('Пожалуйста, выберите станцию отправления из списка');
-      return;
-    }
+    // старая версия валидации 
+    // if (!searchData.origin_port || searchData.origin_port.length < 2) {
+    //   alert('Пожалуйста, выберите станцию отправления из списка');
+    //   return;
+    // }
     
-    if (!searchData.destination_port || searchData.destination_port.length < 2) {
-      alert('Пожалуйста, выберите станцию назначения из списка');
+    // if (!searchData.destination_port || searchData.destination_port.length < 2) {
+    //   alert('Пожалуйста, выберите станцию назначения из списка');
+    //   return;
+    // }
+
+    // новая версия валидации
+    if (!searchData.origin_port || searchData.origin_port.length < 2) {
+      alert('Введите корректную станцию отправления');
       return;
     }
+
+    if (!searchData.destination_port || searchData.destination_port.length < 2) {
+      alert('Введите корректную станцию назначения');
+      return;
+    }
+
     
     if (searchData.origin_port === searchData.destination_port) {
       alert('Станция отправления и назначения не могут совпадать');
@@ -131,28 +144,47 @@ const SearchForm = ({ onSearch, loading }) => {
       return matchesSearch && matchesTransport && port.code !== excludePort;
     }).slice(0, 8);
   };
+  // старя версия:
+  // const handleOriginChange = (value) => {
+  //   setDisplayNames(prev => ({ ...prev, origin_port_display: value })); // Update display
+  //   // Clear the actual port code when user starts typing
+  //   if (value !== displayNames.origin_port_display) {
+  //     handleChange('origin_port', ''); 
+  //   }
+  //   const suggestions = filterPorts(value, searchData.destination_port);
+  //   setOriginSuggestions(suggestions);
+  //   setShowOriginSuggestions(value.length > 0 && suggestions.length > 0);
+  // };
 
+  // const handleDestChange = (value) => {
+  //   setDisplayNames(prev => ({ ...prev, destination_port_display: value })); // Update display  
+  //   // Clear the actual port code when user starts typing
+  //   if (value !== displayNames.destination_port_display) {
+  //     handleChange('destination_port', '');
+  //   }
+  //   const suggestions = filterPorts(value, searchData.origin_port);
+  //   setDestSuggestions(suggestions);
+  //   setShowDestSuggestions(value.length > 0 && suggestions.length > 0);
+  // };
+
+  // Новая версия: хранить сам текст
   const handleOriginChange = (value) => {
-    setDisplayNames(prev => ({ ...prev, origin_port_display: value })); // Update display
-    // Clear the actual port code when user starts typing
-    if (value !== displayNames.origin_port_display) {
-      handleChange('origin_port', ''); 
-    }
+    setDisplayNames(prev => ({ ...prev, origin_port_display: value }));
+    handleChange('origin_port', value); // сохраняем текст, а не только код
     const suggestions = filterPorts(value, searchData.destination_port);
     setOriginSuggestions(suggestions);
     setShowOriginSuggestions(value.length > 0 && suggestions.length > 0);
   };
 
   const handleDestChange = (value) => {
-    setDisplayNames(prev => ({ ...prev, destination_port_display: value })); // Update display  
-    // Clear the actual port code when user starts typing
-    if (value !== displayNames.destination_port_display) {
-      handleChange('destination_port', '');
-    }
+    setDisplayNames(prev => ({ ...prev, destination_port_display: value }));
+    handleChange('destination_port', value); // сохраняем текст
     const suggestions = filterPorts(value, searchData.origin_port);
     setDestSuggestions(suggestions);
     setShowDestSuggestions(value.length > 0 && suggestions.length > 0);
   };
+
+
 
   const selectOriginPort = (port) => {
     handleChange('origin_port', port.code); // Store port code for API
@@ -372,7 +404,7 @@ const SearchForm = ({ onSearch, loading }) => {
 };
 
 // Search Results Component
-const SearchResults = ({ results, loading }) => {
+const SearchResults = ({ results, loading, onRequestCalculation }) => {
   // Debug info
   console.log('SearchResults component - results:', results);
   console.log('SearchResults component - loading:', loading);
@@ -473,7 +505,9 @@ const SearchResults = ({ results, loading }) => {
                   <p className="text-gray-500 text-sm">USD за весь груз</p>
                 </div>
                 
-                <button className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-md">
+                <button 
+                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-md"
+                  onClick={() => onRequestCalculation(result)}>
                   📞 Запросить расчет
                 </button>
                 
@@ -993,6 +1027,10 @@ const App = () => {
   const [adminToken, setAdminToken] = useState(localStorage.getItem('admin_token'));
   const [userEmail, setUserEmail] = useState(localStorage.getItem('user_email'));
 
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
+
   const handleSearch = async (searchData) => {
     console.log('🔍 Frontend handleSearch called with:', searchData);
     setLoading(true);
@@ -1009,6 +1047,68 @@ const App = () => {
       setLoading(false);
     }
   };
+
+  const handleRequestCalculation = async (result) => {
+    console.log('Current userEmail from state:', userEmail);
+    console.log('Current user_email from localStorage:', localStorage.getItem('user_email'));
+  
+    if (!userEmail) {
+      alert("Пожалуйста, авторизуйтесь или зарегистрируйтесь, чтобы запросить расчет.");
+      return;
+    }
+
+    try {
+      console.log('Inside TRY : ', userEmail);
+      const response = await axios.post(`${API}/calculation`, {
+        shipmentId: result.id,
+        clientId: userEmail
+      });
+      // alert("✅ Ваш запрос отправлен! Скоро с вами свяжется перевозчик.");
+      setPopupMessage(`✅Ваш запрос отправлен на почту ${userEmail}!`);
+      setShowPopup(true);
+
+      console.log("Calculation response:", response.data);
+    } catch (error) {
+      console.error("Ошибка при запросе расчета:", error);
+      alert("❌ Не удалось отправить запрос. Попробуйте позже.", error);
+    }
+  };
+
+  // ___________________________________________________________________________
+
+  const Popup = ({ message, onClose }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         onClick={onClose}>
+      <div
+        className="bg-white rounded-xl shadow-xl p-6 relative max-w-md w-full text-center"
+        onClick={(e) => e.stopPropagation()} // чтобы клик внутри не закрывал
+      >
+        {/* Крестик */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+        >
+          ✖
+        </button>
+        
+        {/* Сообщение */}
+        <p className="text-lg font-semibold mb-6">{message}</p>
+        
+        {/* Кнопка OK */}
+        <button
+          onClick={onClose}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+        >
+          OK!
+        </button>
+      </div>
+    </div>
+  );
+  };
+
+  // ___________________________________________________________________________
+
 
   const handleAdminLogin = (token) => {
     setAdminToken(token);
@@ -1117,7 +1217,7 @@ const App = () => {
       </div>
 
       {/* Search Results */}
-      <SearchResults results={searchResults} loading={loading} />
+      <SearchResults results={searchResults} loading={loading} onRequestCalculation={handleRequestCalculation} />
 
       {/* Features Section */}
       {searchResults.length === 0 && !loading && (
@@ -1222,6 +1322,12 @@ const App = () => {
           </div>
         </div>
       </footer>
+
+      {/* Popup */}
+      {showPopup && (
+        <Popup message={popupMessage} onClose={() => setShowPopup(false)} />
+      )}
+
     </div>
   );
 };

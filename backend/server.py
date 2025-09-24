@@ -119,6 +119,10 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class CalculationRequest(BaseModel):
+    shipmentId: str
+    clientId: str
+
 # Auth functions
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
@@ -150,264 +154,18 @@ async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(
 async def get_db_pool():
     global db_pool
     if db_pool is None:
-        db_pool = await asyncpg.create_pool(database_url, min_size=10, max_size=20)
+        db_pool = await asyncpg.create_pool(database_url, min_size=10, max_size=20, statement_cache_size=0)
     return db_pool
-
-async def init_database():
-    """Initialize PostgreSQL database with tables and sample data"""
-    pool = await get_db_pool()
-    async with pool.acquire() as conn:
-        # Create tables
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS ports (
-                id VARCHAR PRIMARY KEY,
-                name VARCHAR NOT NULL,
-                code VARCHAR NOT NULL,
-                country VARCHAR NOT NULL,
-                city VARCHAR NOT NULL,
-                transport_types JSONB NOT NULL DEFAULT '["Море", "ЖД", "Авиа"]'
-            )
-        ''')
-        
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS container_types (
-                id VARCHAR PRIMARY KEY,
-                name VARCHAR NOT NULL,
-                size VARCHAR NOT NULL,
-                capacity_m3 FLOAT NOT NULL,
-                max_weight_kg INTEGER NOT NULL,
-                description VARCHAR NOT NULL,
-                price_modifier FLOAT DEFAULT 1.0
-            )
-        ''')
-        
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS cargo_types (
-                id VARCHAR PRIMARY KEY,
-                name VARCHAR NOT NULL,
-                description VARCHAR NOT NULL,
-                special_requirements JSONB DEFAULT '[]'
-            )
-        ''')
-        
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS shipping_routes (
-                id VARCHAR PRIMARY KEY,
-                origin_port VARCHAR NOT NULL,
-                destination_port VARCHAR NOT NULL,
-                transport_type VARCHAR DEFAULT 'Море',
-                carrier VARCHAR NOT NULL,
-                transit_time_days INTEGER NOT NULL,
-                base_price_usd FLOAT NOT NULL,
-                available_container_types JSONB NOT NULL,
-                frequency VARCHAR NOT NULL,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        ''')
-        
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id VARCHAR PRIMARY KEY,
-                email VARCHAR UNIQUE NOT NULL,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        ''')
-        
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS webhook_settings (
-                id VARCHAR PRIMARY KEY,
-                webhook_url VARCHAR NOT NULL,
-                updated_at TIMESTAMP DEFAULT NOW()
-            )
-        ''')
 
 # Initialize default data
 @app.on_event("startup")
 async def startup_event():
+    await get_db_pool()
     # Initialize database
-    await init_database()
+    # await init_database()
     # Always refresh data for development
-    await refresh_sample_data()
+    # await refresh_sample_data()
 
-async def refresh_sample_data():
-    """Clear existing data and populate with sample data"""
-    pool = await get_db_pool()
-    async with pool.acquire() as conn:
-        # Clear existing data
-        await conn.execute('DELETE FROM ports')
-        await conn.execute('DELETE FROM container_types')
-        await conn.execute('DELETE FROM cargo_types')
-        await conn.execute('DELETE FROM shipping_routes')
-        
-        # Initialize default container types (only 2 types)
-        default_containers = [
-            {
-                "id": str(uuid.uuid4()),
-                "name": "20ft",
-                "size": "20ft", 
-                "capacity_m3": 33.2,
-                "max_weight_kg": 28000,
-                "description": "Стандартный контейнер 20 футов",
-                "price_modifier": 1.0
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "40ft",
-                "size": "40ft",
-                "capacity_m3": 67.7,
-                "max_weight_kg": 28000,
-                "description": "Стандартный контейнер 40 футов",
-                "price_modifier": 1.0
-            }
-        ]
-        
-        for container in default_containers:
-            await conn.execute('''
-                INSERT INTO container_types (id, name, size, capacity_m3, max_weight_kg, description, price_modifier)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
-            ''', container["id"], container["name"], container["size"], container["capacity_m3"], 
-            container["max_weight_kg"], container["description"], container["price_modifier"])
-        
-        # Initialize cargo types (simplified to dangerous/safe)
-        default_cargo_types = [
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Неопасный груз",
-                "description": "Стандартный груз без опасных свойств",
-                "special_requirements": []
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Опасный груз",
-                "description": "Груз, требующий специальных разрешений",
-                "special_requirements": ["Опасный груз", "Специальные разрешения", "Сертификаты"]
-            }
-        ]
-        
-        for cargo_type in default_cargo_types:
-            await conn.execute('''
-                INSERT INTO cargo_types (id, name, description, special_requirements)
-                VALUES ($1, $2, $3, $4)
-            ''', cargo_type["id"], cargo_type["name"], cargo_type["description"], 
-            json.dumps(cargo_type["special_requirements"]))
-        
-        # Initialize ports and railway stations (160+ stations)
-        default_ports = [
-            # Российские порты и ж/д станции
-            {"name": "Санкт-Петербург", "code": "LED", "country": "Россия", "city": "Санкт-Петербург", "transport_types": ["Море", "ЖД", "Авиа"]},
-            {"name": "Новороссийск", "code": "NVS", "country": "Россия", "city": "Новороссийск", "transport_types": ["Море", "ЖД"]},
-            {"name": "Калининград", "code": "KGD", "country": "Россия", "city": "Калининград", "transport_types": ["Море", "ЖД", "Авиа"]},
-            {"name": "Владивосток", "code": "VVO", "country": "Россия", "city": "Владивосток", "transport_types": ["Море", "ЖД", "Авиа"]},
-            {"name": "Мурманск", "code": "MMK", "country": "Россия", "city": "Мурманск", "transport_types": ["Море"]},
-            {"name": "Архангельск", "code": "ARH", "country": "Россия", "city": "Архангельск", "transport_types": ["Море"]},
-            {"name": "Москва", "code": "SVO", "country": "Россия", "city": "Москва", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Екатеринбург", "code": "SVX", "country": "Россия", "city": "Екатеринбург", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Новосибирск", "code": "OVB", "country": "Россия", "city": "Новосибирск", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Красноярск", "code": "KJA", "country": "Россия", "city": "Красноярск", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Иркутск", "code": "IKT", "country": "Россия", "city": "Иркутск", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Хабаровск", "code": "KHV", "country": "Россия", "city": "Хабаровск", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Челябинск", "code": "CEK", "country": "Россия", "city": "Челябинск", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Омск", "code": "OMS", "country": "Россия", "city": "Омск", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Селятино", "code": "SEL", "country": "Россия", "city": "Селятино", "transport_types": ["ЖД"]},
-            {"name": "Кунцево-2", "code": "KUN", "country": "Россия", "city": "Кунцево", "transport_types": ["ЖД"]},
-            {"name": "Белый Раст", "code": "BRZ", "country": "Россия", "city": "Белый Раст", "transport_types": ["ЖД"]},
-            {"name": "Восточный", "code": "VST", "country": "Россия", "city": "Восточный", "transport_types": ["Море", "ЖД"]},
-            
-            # Страны СНГ
-            {"name": "Одесса", "code": "ODS", "country": "Украина", "city": "Одесса", "transport_types": ["Море", "ЖД"]},
-            {"name": "Киев", "code": "KBP", "country": "Украина", "city": "Киев", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Харьков", "code": "HRK", "country": "Украина", "city": "Харьков", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Днепр", "code": "DNK", "country": "Украина", "city": "Днепр", "transport_types": ["ЖД", "Авиа"]},
-            
-            {"name": "Актау", "code": "SCO", "country": "Казахстан", "city": "Актау", "transport_types": ["Море", "ЖД"]},
-            {"name": "Алматы", "code": "ALA", "country": "Казахстан", "city": "Алматы", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Нур-Султан", "code": "NQZ", "country": "Казахстан", "city": "Нур-Султан", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Хоргос", "code": "KHG", "country": "Казахстан", "city": "Хоргос", "transport_types": ["ЖД"]},
-            {"name": "Достык", "code": "DOS", "country": "Казахстан", "city": "Достык", "transport_types": ["ЖД"]},
-            {"name": "Алтынколь", "code": "ALT", "country": "Казахстан", "city": "Алтынколь", "transport_types": ["ЖД"]},
-            {"name": "Шымкент", "code": "CIT", "country": "Казахстан", "city": "Шымкент", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Караганда", "code": "KGF", "country": "Казахстан", "city": "Караганда", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Атырау", "code": "GUW", "country": "Казахстан", "city": "Атырау", "transport_types": ["ЖД", "Авиа"]},
-            
-            {"name": "Минск", "code": "MSQ", "country": "Беларусь", "city": "Минск", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Брест", "code": "BQT", "country": "Беларусь", "city": "Брест", "transport_types": ["ЖД"]},
-            {"name": "Гомель", "code": "GME", "country": "Беларусь", "city": "Гомель", "transport_types": ["ЖД"]},
-            {"name": "Витебск", "code": "VTB", "country": "Беларусь", "city": "Витебск", "transport_types": ["ЖД"]},
-            {"name": "Гродно", "code": "GNA", "country": "Беларусь", "city": "Гродно", "transport_types": ["ЖД"]},
-            {"name": "Могилев", "code": "MVQ", "country": "Беларусь", "city": "Могилев", "transport_types": ["ЖД"]},
-            
-            {"name": "Батуми", "code": "BUS", "country": "Грузия", "city": "Батуми", "transport_types": ["Море", "ЖД"]},
-            {"name": "Поти", "code": "POT", "country": "Грузия", "city": "Поти", "transport_types": ["Море"]},
-            {"name": "Тбилиси", "code": "TBS", "country": "Грузия", "city": "Тбилиси", "transport_types": ["ЖД", "Авиа"]},
-            
-            {"name": "Баку", "code": "BAK", "country": "Азербайджан", "city": "Баку", "transport_types": ["Море", "ЖД", "Авиа"]},
-            {"name": "Сумгаит", "code": "SMG", "country": "Азербайджан", "city": "Сумгаит", "transport_types": ["ЖД"]},
-            
-            {"name": "Ташкент", "code": "TAS", "country": "Узбекистан", "city": "Ташкент", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Самарканд", "code": "SKD", "country": "Узбекистан", "city": "Самарканд", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Андижан", "code": "AZN", "country": "Узбекистан", "city": "Андижан", "transport_types": ["ЖД"]},
-            {"name": "Фергана", "code": "FEG", "country": "Узбекистан", "city": "Фергана", "transport_types": ["ЖД"]},
-            {"name": "Бухара", "code": "BHK", "country": "Узбекистан", "city": "Бухара", "transport_types": ["ЖД"]},
-            {"name": "Хива", "code": "UGC", "country": "Узбекистан", "city": "Хива", "transport_types": ["ЖД"]},
-            
-            {"name": "Кишинев", "code": "KIV", "country": "Молдова", "city": "Кишинев", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Унгены", "code": "UNG", "country": "Молдова", "city": "Унгены", "transport_types": ["ЖД"]},
-            
-            {"name": "Бишкек", "code": "FRU", "country": "Кыргызстан", "city": "Бишкек", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Ош", "code": "OSS", "country": "Кыргызстан", "city": "Ош", "transport_types": ["ЖД", "Авиа"]},
-            
-            {"name": "Душанбе", "code": "DYU", "country": "Таджикистан", "city": "Душанбе", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Худжанд", "code": "LBD", "country": "Таджикистан", "city": "Худжанд", "transport_types": ["ЖД"]},
-            
-            {"name": "Ашхабад", "code": "ASB", "country": "Туркменистан", "city": "Ашхабад", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Туркменабад", "code": "CRZ", "country": "Туркменистан", "city": "Туркменабад", "transport_types": ["ЖД"]},
-            {"name": "Туркменбаши", "code": "KRW", "country": "Туркменистан", "city": "Туркменбаши", "transport_types": ["Море", "ЖД"]},
-            
-            {"name": "Ереван", "code": "EVN", "country": "Армения", "city": "Ереван", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Гюмри", "code": "LWN", "country": "Армения", "city": "Гюмри", "transport_types": ["ЖД"]},
-            
-            # Китайские железнодорожные станции и терминалы
-            {"name": "Шанхай", "code": "SHA", "country": "Китай", "city": "Шанхай", "transport_types": ["Море", "ЖД", "Авиа"]},
-            {"name": "Чэнду", "code": "CTU", "country": "Китай", "city": "Чэнду", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Шэньчжэнь", "code": "SZX", "country": "Китай", "city": "Шэньчжэнь", "transport_types": ["Море", "ЖД", "Авиа"]},
-            {"name": "Гуанчжоу", "code": "CAN", "country": "Китай", "city": "Гуанчжоу", "transport_types": ["Море", "ЖД", "Авиа"]},
-            {"name": "Тяньцзинь", "code": "TSN", "country": "Китай", "city": "Тяньцзинь", "transport_types": ["Море", "ЖД"]},
-            {"name": "Далянь", "code": "DLC", "country": "Китай", "city": "Далянь", "transport_types": ["Море", "ЖД"]},
-            {"name": "Циндао", "code": "TAO", "country": "Китай", "city": "Циндао", "transport_types": ["Море"]},
-            {"name": "Нинбо", "code": "NGB", "country": "Китай", "city": "Нинбо", "transport_types": ["Море"]},
-            {"name": "Сямынь", "code": "XMN", "country": "Китай", "city": "Сямынь", "transport_types": ["Море", "Авиа"]},
-            {"name": "Урумчи", "code": "URC", "country": "Китай", "city": "Урумчи", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Пекин", "code": "PEK", "country": "Китай", "city": "Пекин", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Иу", "code": "YIW", "country": "Китай", "city": "Иу", "transport_types": ["ЖД"]},
-            {"name": "Сиань", "code": "SIA", "country": "Китай", "city": "Сиань", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Ухань", "code": "WUH", "country": "Китай", "city": "Ухань", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Чунцин", "code": "CKG", "country": "Китай", "city": "Чунцин", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Алашанькоу", "code": "ALA", "country": "Китай", "city": "Алашанькоу", "transport_types": ["ЖД"]},
-            {"name": "Эренхот", "code": "ERE", "country": "Китай", "city": "Эренхот", "transport_types": ["ЖД"]},
-            {"name": "Маньчжоули", "code": "NZH", "country": "Китай", "city": "Маньчжоули", "transport_types": ["ЖД"]},
-            {"name": "Суйфэньхэ", "code": "SUI", "country": "Китай", "city": "Суйфэньхэ", "transport_types": ["ЖД"]},
-            {"name": "Харбин", "code": "HRB", "country": "Китай", "city": "Харбин", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Чанчунь", "code": "CGQ", "country": "Китай", "city": "Чанчунь", "transport_types": ["ЖД", "Авиа"]},
-            {"name": "Шэньян", "code": "SHE", "country": "Китай", "city": "Шэньян", "transport_types": ["ЖД", "Авиа"]},
-            
-            # Европейские порты
-            {"name": "Гамбург", "code": "HAM", "country": "Германия", "city": "Гамбург", "transport_types": ["Море", "ЖД"]},
-            {"name": "Роттердам", "code": "RTM", "country": "Нидерланды", "city": "Роттердам", "transport_types": ["Море"]},
-            {"name": "Антверпен", "code": "ANR", "country": "Бельгия", "city": "Антверпен", "transport_types": ["Море"]},
-            {"name": "Феликстоу", "code": "FXT", "country": "Великобритания", "city": "Феликстоу", "transport_types": ["Море"]},
-            {"name": "Стамбул", "code": "IST", "country": "Турция", "city": "Стамбул", "transport_types": ["Море", "ЖД", "Авиа"]},
-            {"name": "Дуйсбург", "code": "DUI", "country": "Германия", "city": "Дуйсбург", "transport_types": ["ЖД"]},
-            {"name": "Мальашевиче", "code": "MAL", "country": "Польша", "city": "Мальашевиче", "transport_types": ["ЖД"]},
-            {"name": "Варшава", "code": "WAW", "country": "Польша", "city": "Варшава", "transport_types": ["ЖД", "Авиа"]},
-        ]
-        
-        for port in default_ports:
-            port_id = str(uuid.uuid4())
-            await conn.execute('''
-                INSERT INTO ports (id, name, code, country, city, transport_types)
-                VALUES ($1, $2, $3, $4, $5, $6)
-            ''', port_id, port["name"], port["code"], port["country"], port["city"], 
-            json.dumps(port["transport_types"]))
 
 # CORS middleware
 app.add_middleware(
@@ -470,7 +228,7 @@ async def search_shipments(query: SearchQuery):
     pool = await get_db_pool()
     async with pool.acquire() as conn:
         webhook_row = await conn.fetchrow('SELECT webhook_url FROM webhook_settings LIMIT 1')
-        webhook_url = webhook_row['webhook_url'] if webhook_row else "https://beautechflow.store/webhook/search"
+        webhook_url = webhook_row['webhook_url'] if webhook_row else "https://n8n210980.hostkey.in/webhook/search"
     
     # Convert our data format to webhook API format
     # Map container type to size number
@@ -508,10 +266,12 @@ async def search_shipments(query: SearchQuery):
     webhook_params = {
         "from": webhook_from,  # Send mapped city name for webhook
         "to": webhook_to,  # Send mapped city name for webhook  
-        "container_size": container_size_map.get(query.container_type, "20"),
-        "price": "5100",  # Base price for filtering
-        "ETD": query.departure_date_from.isoformat(),
-        "TT": "35"  # Default transit time
+        "container_size": container_size_map.get(query.container_type, "40"),
+        # "price": "5100",  # Base price for filtering
+        # "ETD": query.departure_date_from.isoformat(),
+        "date_from": query.departure_date_from.isoformat(),
+        "date_to": query.departure_date_to.isoformat(),
+        # "TT": "35"  # Default transit time
     }
     
     print(f"🌐 DEBUG: Sending to webhook: {webhook_url} with params: {webhook_params}")
@@ -537,10 +297,10 @@ async def search_shipments(query: SearchQuery):
                                 "id": item.get("id", str(uuid.uuid4())),
                                 "origin_port": item.get("from", query.origin_port),
                                 "destination_port": item.get("to", query.destination_port),
-                                "carrier": "Railway Express",  # Default carrier
-                                "departure_date_range": f"{query.departure_date_from.strftime('%d.%m')} - {query.departure_date_to.strftime('%d.%m.%Y')}",
+                                "carrier": item.get("carrier", "Railway Express"),  # Default carrier
+                                "departure_date_range": item.get("ETD", f"{query.departure_date_from.strftime('%d.%m')} - {query.departure_date_to.strftime('%d.%m.%Y')}"),
                                 "transit_time_days": item.get("TT") or 15,
-                                "container_type": query.container_type,
+                                "container_type": item.get("container_size"),
                                 "price_from_usd": float(item.get("price", 0)),
                                 "is_dangerous_cargo": query.is_dangerous_cargo,
                                 "available_containers": 5,
@@ -570,9 +330,9 @@ async def search_shipments(query: SearchQuery):
         
         # Generate different routes based on popular railway directions
         routes_data = [
-            {"carrier": "China Railways Express", "base_price": 4750, "transit_days": 15, "route_desc": "Популярный маршрут"},
-            {"carrier": "New Silk Road Express", "base_price": 4700, "transit_days": 18, "route_desc": "Прямое сообщение"},
-            {"carrier": "RZD Logistics", "base_price": 5200, "transit_days": 12, "route_desc": "Быстрая доставка"}
+            {"carrier": "China Railways Express", "base_price": 1000, "transit_days": 15, "route_desc": "Популярный маршрут"},
+            {"carrier": "New Silk Road Express", "base_price": 1001, "transit_days": 18, "route_desc": "Прямое сообщение"},
+            {"carrier": "RZD Logistics", "base_price": 1010, "transit_days": 12, "route_desc": "Быстрая доставка"}
         ]
         
         for i, route in enumerate(routes_data):
@@ -601,6 +361,42 @@ async def search_shipments(query: SearchQuery):
             })
             
         return fallback_results
+
+@api_router.post("/calculation")
+async def calculate_rate(calc_req: CalculationRequest):
+    print(f"🔍 DEBUG: Click calculation")
+    pool = await get_db_pool()
+
+    # 1. Отправляем на внешний webhook
+    url = "https://n8n210980.hostkey.in/webhook/calculate"
+    payload = {"shipmentId": calc_req.shipmentId, "clientId": calc_req.clientId}
+
+    import httpx
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=payload, timeout=30)
+            if response.status_code == 200:
+                logging.info(f"📦 Calculation webhook response: {response.json()}")
+                webhook_response = response.json()
+            else:
+                logging.warning(f"⚠️ Webhook returned status {response.status_code}")
+                webhook_response = {"error": f"Webhook returned {response.status_code}"}
+    except Exception as e:
+        logging.error(f"❌ Webhook call failed: {e}")
+        webhook_response = {"error": str(e)}
+
+    # 2. Сохраняем клик в БД
+    async with pool.acquire() as conn:
+        await conn.execute(
+            """
+            INSERT INTO calculate_clicks (rout_id, user_id, created_at)
+            VALUES ($1, $2, NOW())
+            """,
+            calc_req.shipmentId,
+            calc_req.clientId,
+        )
+
+    return {"message": "Calculation processed", "webhook_response": webhook_response}
 
 # User registration
 @api_router.post("/register")
