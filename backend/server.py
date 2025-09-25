@@ -76,6 +76,7 @@ class SearchQuery(BaseModel):
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: str
+    password_hash: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class WebhookSettings(BaseModel):
@@ -85,6 +86,12 @@ class WebhookSettings(BaseModel):
 
 class UserRegistration(BaseModel):
     email: str
+    password: str
+    confirm_password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
 
 class ShippingRoute(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -150,6 +157,35 @@ async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(
         raise HTTPException(status_code=401, detail="Invalid authentication")
     return username
 
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid authentication")
+        
+        # Verify user exists in database
+        pool = await get_db_pool()
+        async with pool.acquire() as conn:
+            user = await conn.fetchrow('SELECT id, email FROM users WHERE id = $1', user_id)
+            if not user:
+                raise HTTPException(status_code=401, detail="User not found")
+            return {"id": user["id"], "email": user["email"]}
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid authentication")
+
+async def verify_user_credentials(email: str, password: str):
+    """Verify user credentials and return user data if valid"""
+    pool = await get_db_pool()
+    async with pool.acquire() as conn:
+        user = await conn.fetchrow('SELECT id, email, password_hash FROM users WHERE email = $1', email)
+        if not user:
+            return None
+        
+        if verify_password(password, user['password_hash'].encode('utf-8')):
+            return {"id": user["id"], "email": user["email"]}
+        return None
+
 # Database connection and initialization
 async def get_db_pool():
     global db_pool
@@ -165,6 +201,7 @@ async def startup_event():
     # await init_database()
     # Always refresh data for development
     # await refresh_sample_data()
+    
 
 
 # CORS middleware
@@ -401,6 +438,14 @@ async def calculate_rate(calc_req: CalculationRequest):
 # User registration
 @api_router.post("/register")
 async def register_user(user_data: UserRegistration):
+    # Validate passwords match
+    if user_data.password != user_data.confirm_password:
+        raise HTTPException(status_code=400, detail="Passwords do not match")
+    
+    # Validate password length
+    if len(user_data.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters long")
+    
     pool = await get_db_pool()
     async with pool.acquire() as conn:
         # Check if user already exists
@@ -408,13 +453,34 @@ async def register_user(user_data: UserRegistration):
         if existing_user:
             raise HTTPException(status_code=400, detail="User already exists")
         
+        # Hash password
+        password_hash = get_password_hash(user_data.password).decode('utf-8')
+        
         user_id = str(uuid.uuid4())
         await conn.execute('''
-            INSERT INTO users (id, email, created_at)
-            VALUES ($1, $2, NOW())
-        ''', user_id, user_data.email)
+            INSERT INTO users (id, email, password_hash, created_at)
+            VALUES ($1, $2, $3, NOW())
+        ''', user_id, user_data.email, password_hash)
         
         return {"message": "User registered successfully", "user_id": user_id}
+
+# User login
+@api_router.post("/login", response_model=Token)
+async def user_login(form_data: UserLogin):
+    user = await verify_user_credentials(form_data.email, form_data.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user["id"]}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+# Get current user info
+@api_router.get("/me")
+async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+    return current_user
 
 # Admin login
 @api_router.post("/admin/login", response_model=Token)

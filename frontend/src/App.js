@@ -539,6 +539,10 @@ const SearchResults = ({ results, loading, onRequestCalculation }) => {
 // User Registration Component
 const UserRegistration = ({ onRegister, onBack }) => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -547,13 +551,42 @@ const UserRegistration = ({ onRegister, onBack }) => {
     setLoading(true);
     setMessage('');
 
+    // Client-side validation
+    if (password !== confirmPassword) {
+      setMessage('Пароли не совпадают.');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage('Пароль должен содержать минимум 6 символов.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post(`${API}/register`, { email });
-      setMessage('Регистрация успешна! Теперь вы можете пользоваться сервисом.');
-      onRegister(email);
+      const response = await axios.post(`${API}/register`, { email, password, confirm_password: confirmPassword });
+      setMessage('Регистрация успешна! Теперь вы можете войти в систему.');
+      // Auto-login after registration
+      try {
+        const loginResponse = await axios.post(`${API}/login`, { email, password });
+        localStorage.setItem('userToken', loginResponse.data.access_token);
+        onRegister(email, loginResponse.data.access_token);
+      } catch (loginError) {
+        onRegister(email);
+      }
     } catch (error) {
       if (error.response?.status === 400) {
-        setMessage('Пользователь с таким email уже существует.');
+        const errorMessage = error.response.data.detail;
+        if (errorMessage === "Passwords do not match") {
+          setMessage('Пароли не совпадают.');
+        } else if (errorMessage === "Password must be at least 6 characters long") {
+          setMessage('Пароль должен содержать минимум 6 символов.');
+        } else if (errorMessage === "User already exists") {
+          setMessage('Пользователь с таким email уже существует.');
+        } else {
+          setMessage(errorMessage);
+        }
       } else {
         setMessage('Ошибка при регистрации. Попробуйте еще раз.');
       }
@@ -607,6 +640,72 @@ const UserRegistration = ({ onRegister, onBack }) => {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Пароль
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-4 pr-12 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                placeholder="Введите пароль"
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Подтвердите пароль
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full p-4 pr-12 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                placeholder="Подтвердите пароль"
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                {showConfirmPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -621,7 +720,134 @@ const UserRegistration = ({ onRegister, onBack }) => {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Подтверждение email не требуется</p>
+          <p>Пароль должен содержать минимум 6 символов</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// User Login Component
+const UserLogin = ({ onLogin, onBack }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const response = await axios.post(`${API}/login`, { email, password });
+      localStorage.setItem('userToken', response.data.access_token);
+      setMessage('Вход выполнен успешно!');
+      onLogin(email, response.data.access_token);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setMessage('Неверный email или пароль.');
+      } else {
+        setMessage('Ошибка при входе. Попробуйте еще раз.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-bold">Вход в систему</h2>
+          <button
+            onClick={onBack}
+            className="text-gray-500 hover:text-gray-700 p-2"
+            title="Назад"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div className="mb-6 text-center text-gray-600">
+          <p>Войдите в свой аккаунт для доступа к поиску перевозок</p>
+        </div>
+
+        {message && (
+          <div className={`p-4 rounded mb-4 ${
+            message.includes('успешно') 
+              ? 'bg-green-100 border border-green-400 text-green-700' 
+              : 'bg-red-100 border border-red-400 text-red-700'
+          }`}>
+            {message}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Email адрес
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              placeholder="example@mail.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Пароль
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-4 pr-12 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                placeholder="Введите пароль"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-4 text-white font-bold rounded-lg transition-all ${
+              loading 
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {loading ? 'Вход...' : 'Войти'}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>Нет аккаунта? <button onClick={() => window.location.reload()} className="text-blue-600 hover:underline">Зарегистрироваться</button></p>
         </div>
       </div>
     </div>
@@ -1024,7 +1250,9 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
+  const [showUserLogin, setShowUserLogin] = useState(false);
   const [adminToken, setAdminToken] = useState(localStorage.getItem('admin_token'));
+  const [userToken, setUserToken] = useState(localStorage.getItem('userToken'));
   const [userEmail, setUserEmail] = useState(localStorage.getItem('user_email'));
 
   const [showPopup, setShowPopup] = useState(false);
@@ -1125,14 +1353,37 @@ const App = () => {
     setShowAdmin(false);
   };
 
-  const handleUserRegistration = (email) => {
+  const handleUserRegistration = (email, token = null) => {
     localStorage.setItem('user_email', email);
     setUserEmail(email);
+    if (token) {
+      setUserToken(token);
+      localStorage.setItem('userToken', token);
+    }
     setShowRegistration(false);
+  };
+
+  const handleUserLogin = (email, token) => {
+    localStorage.setItem('user_email', email);
+    setUserEmail(email);
+    setUserToken(token);
+    localStorage.setItem('userToken', token);
+    setShowUserLogin(false);
+  };
+
+  const handleUserLogout = () => {
+    setUserEmail('');
+    setUserToken(null);
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('user_email');
   };
 
   const handleBackFromRegistration = () => {
     setShowRegistration(false);
+  };
+
+  const handleBackFromUserLogin = () => {
+    setShowUserLogin(false);
   };
 
   // Admin panel route
@@ -1150,6 +1401,11 @@ const App = () => {
     return <UserRegistration onRegister={handleUserRegistration} onBack={handleBackFromRegistration} />;
   }
 
+  // User login route
+  if (showUserLogin) {
+    return <UserLogin onLogin={handleUserLogin} onBack={handleBackFromUserLogin} />;
+  }
+
   // Main application
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1161,21 +1417,39 @@ const App = () => {
             <p className="text-gray-600 hidden md:block">Платформа поиска железнодорожных перевозок</p>
           </div>
           <div className="flex items-center space-x-4">
-            {userEmail && (
-              <span className="text-sm text-gray-600">
-                👤 {userEmail}
-              </span>
-            )}
-            {!userEmail && (
-              <button
-                onClick={() => setShowRegistration(true)}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm flex items-center space-x-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                </svg>
-                <span>Регистрация</span>
-              </button>
+            {userToken ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-600">
+                  👤 {userEmail}
+                </span>
+                <button
+                  onClick={handleUserLogout}
+                  className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm"
+                >
+                  Выйти
+                </button>
+              </div>
+            ) : (
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setShowUserLogin(true)}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm flex items-center space-x-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                  </svg>
+                  <span>Войти</span>
+                </button>
+                <button
+                  onClick={() => setShowRegistration(true)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center space-x-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                  </svg>
+                  <span>Регистрация</span>
+                </button>
+              </div>
             )}
             <button
               onClick={() => setShowAdmin(true)}
