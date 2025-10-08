@@ -1244,6 +1244,390 @@ const AdminPanel = ({ token, onLogout, onBack }) => {
   );
 };
 
+// Booking Modal Component
+const BookingModal = ({ 
+  isOpen, 
+  onClose, 
+  selectedRoute, 
+  bookingData, 
+  setBookingData, 
+  onSubmit,
+  isSubmitting 
+}) => {
+  const [deliveryTerms, setDeliveryTerms] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Загрузка условий поставки
+  useEffect(() => {
+    if (isOpen) {
+      fetchDeliveryTerms();
+    }
+  }, [isOpen]);
+  
+  const fetchDeliveryTerms = async () => {
+    try {
+      const response = await axios.get(`${API}/delivery-terms`);
+      setDeliveryTerms(response.data);
+    } catch (error) {
+      console.error('Ошибка загрузки условий поставки:', error);
+    }
+  };
+  
+  const handleInputChange = (field, value) => {
+    setBookingData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    const fileNames = files.map(file => file.name);
+    setBookingData(prev => ({
+      ...prev,
+      uploaded_files: [...prev.uploaded_files, ...fileNames]
+    }));
+  };
+  
+  const removeFile = (fileName) => {
+    setBookingData(prev => ({
+      ...prev,
+      uploaded_files: prev.uploaded_files.filter(name => name !== fileName)
+    }));
+  };
+  
+  const validateForm = () => {
+    const requiredFields = [
+      'company_name', 'contact_name', 'contact_phone', 'sender_phone',
+      'factory_address', 'confirmation_email', 'tnved_code', 'delivery_conditions'
+    ];
+    
+    for (const field of requiredFields) {
+      if (!bookingData[field]?.trim()) {
+        alert(`Пожалуйста, заполните поле: ${getFieldLabel(field)}`);
+        return false;
+      }
+    }
+    
+    // Проверка email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(bookingData.confirmation_email)) {
+      alert('Пожалуйста, введите корректный email для подтверждения');
+      return false;
+    }
+    
+    // Проверка телефонов
+    const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+    if (!phoneRegex.test(bookingData.contact_phone)) {
+      alert('Пожалуйста, введите корректный телефон контакта');
+      return false;
+    }
+    
+    if (!phoneRegex.test(bookingData.sender_phone)) {
+      alert('Пожалуйста, введите корректный телефон отправителя');
+      return false;
+    }
+    
+    return true;
+  };
+  
+  const getFieldLabel = (field) => {
+    const labels = {
+      company_name: 'Название компании плательщика',
+      contact_name: 'ФИ контакта загрузке',
+      contact_phone: 'Телефон контакта',
+      sender_phone: 'Телефон отправителя',
+      factory_address: 'Адрес фабрики',
+      confirmation_email: 'Email для подтверждения',
+      tnved_code: 'Код ТНВЭД',
+      delivery_conditions: 'Условия поставки'
+    };
+    return labels[field] || field;
+  };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      onSubmit();
+    }
+  };
+  
+  if (!isOpen) return null;
+  
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">
+              📋 Бронирование перевозки
+            </h2>
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 text-xl"
+              disabled={isSubmitting}
+            >
+              ✕
+            </button>
+          </div>
+          
+          {/* Route Info */}
+          {selectedRoute && (
+            <div className="bg-blue-50 p-4 rounded-lg mb-6">
+              <h3 className="font-semibold text-blue-800 mb-2">Выбранный маршрут:</h3>
+              <p className="text-sm text-blue-700">
+                {selectedRoute.origin_port} → {selectedRoute.destination_port} | 
+                {selectedRoute.carrier} | 
+                Цена от: ${(selectedRoute.price_from_usd || 950).toLocaleString()} USD
+              </p>
+            </div>
+          )}
+          
+          {/* Data Collection Notice */}
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Информация о сборе данных:</strong> Мы собираем ваши данные для обработки заявки на бронирование и организации перевозки. 
+                  Данные будут переданы перевозчикам для участия в торгах и предоставления лучших условий.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Company and Contact Info */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Информация о компании</h3>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Название компании плательщика *
+                  </label>
+                  <input
+                    type="text"
+                    value={bookingData.company_name}
+                    onChange={(e) => handleInputChange('company_name', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="ООО 'Название компании'"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ФИ контакта загрузке *
+                  </label>
+                  <input
+                    type="text"
+                    value={bookingData.contact_name}
+                    onChange={(e) => handleInputChange('contact_name', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Иванов Иван Иванович"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Телефон контакта *
+                  </label>
+                  <input
+                    type="tel"
+                    value={bookingData.contact_phone}
+                    onChange={(e) => handleInputChange('contact_phone', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="+7 (900) 123-45-67"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Телефон отправителя *
+                  </label>
+                  <input
+                    type="tel"
+                    value={bookingData.sender_phone}
+                    onChange={(e) => handleInputChange('sender_phone', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="+7 (900) 987-65-43"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email для подтверждения бронирования *
+                  </label>
+                  <input
+                    type="email"
+                    value={bookingData.confirmation_email}
+                    onChange={(e) => handleInputChange('confirmation_email', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="email@company.com"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+              
+              {/* Delivery and Cargo Info */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Информация о грузе</h3>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Адрес фабрики *
+                  </label>
+                  <textarea
+                    value={bookingData.factory_address}
+                    onChange={(e) => handleInputChange('factory_address', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Полный адрес фабрики с индексом"
+                    rows="3"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Код ТНВЭД *
+                  </label>
+                  <input
+                    type="text"
+                    value={bookingData.tnved_code}
+                    onChange={(e) => handleInputChange('tnved_code', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1234567890"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Условия поставки *
+                  </label>
+                  <input
+                    type="text"
+                    value={bookingData.delivery_conditions}
+                    onChange={(e) => handleInputChange('delivery_conditions', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Описание условий поставки"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                
+                {/* Checkbox for delivery terms change */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="change_delivery_terms"
+                    checked={bookingData.change_delivery_terms}
+                    onChange={(e) => handleInputChange('change_delivery_terms', e.target.checked)}
+                    className="rounded border-gray-300 focus:ring-blue-500"
+                    disabled={isSubmitting}
+                  />
+                  <label htmlFor="change_delivery_terms" className="text-sm font-medium text-gray-700">
+                    Изменение условия поставки
+                  </label>
+                </div>
+                
+                {/* Dropdown for delivery terms (visible when checkbox is checked) */}
+                {bookingData.change_delivery_terms && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Выберите условия поставки
+                    </label>
+                    <select
+                      value={bookingData.delivery_terms}
+                      onChange={(e) => handleInputChange('delivery_terms', e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={isSubmitting}
+                    >
+                      <option value="">Выберите условие поставки...</option>
+                      {deliveryTerms.map(term => (
+                        <option key={term.code} value={term.code}>
+                          {term.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                
+                {/* File upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Загрузка файлов
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={isSubmitting}
+                  />
+                  
+                  {/* Uploaded files list */}
+                  {bookingData.uploaded_files.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600 mb-1">Загруженные файлы:</p>
+                      <div className="space-y-1">
+                        {bookingData.uploaded_files.map((fileName, index) => (
+                          <div key={index} className="flex items-center justify-between bg-gray-100 p-2 rounded">
+                            <span className="text-sm text-gray-700 truncate">{fileName}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeFile(fileName)}
+                              className="text-red-500 hover:text-red-700 ml-2"
+                              disabled={isSubmitting}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Submit buttons */}
+            <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isSubmitting}
+              >
+                Отменить
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-md hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 const App = () => {
   const [searchResults, setSearchResults] = useState([]);
