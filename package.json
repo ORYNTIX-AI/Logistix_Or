@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "cd frontend && yarn install && yarn build",
-    "dev": "cd frontend && yarn start",
-    "start": "cd frontend && yarn start"
+    "build": "cd frontend && npm install && npm run build",
+    "dev": "cd frontend && npm start",
+    "start": "cd frontend && npm start"
   },
   "workspaces": [
     "frontend"
