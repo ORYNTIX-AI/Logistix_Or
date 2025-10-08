@@ -1691,6 +1691,90 @@ const App = () => {
     setShowBookingModal(true);
   };
 
+  // States for booking animation
+  const [showBookingAnimation, setShowBookingAnimation] = useState(false);
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
+  const [bookingAnimationStep, setBookingAnimationStep] = useState(0);
+
+  const handleBookingSubmit = async () => {
+    setIsSubmittingBooking(true);
+    
+    try {
+      // Prepare booking request data
+      const bookingRequest = {
+        ...bookingData,
+        route_id: selectedRoute.id,
+        search_query: {
+          origin_port: selectedRoute.origin_port,
+          destination_port: selectedRoute.destination_port,
+          carrier: selectedRoute.carrier,
+          price_from_usd: selectedRoute.price_from_usd
+        }
+      };
+
+      console.log('Submitting booking request:', bookingRequest);
+
+      const response = await axios.post(`${API}/booking`, bookingRequest, {
+        headers: {
+          'Authorization': `Bearer ${userToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Booking response:', response.data);
+
+      // Close booking modal
+      setShowBookingModal(false);
+      
+      // Show animation
+      setShowBookingAnimation(true);
+      setBookingAnimationStep(0);
+      
+      // Animate the bidding process steps
+      const animationSteps = [
+        "Отправляем уведомления перевозчикам...",
+        "Получаем предложения от перевозчиков...", 
+        "Выбираем лучшее предложение...",
+        "Уведомляем победителя торгов...",
+        "Отправляем данные клиенту..."
+      ];
+      
+      for (let i = 0; i < animationSteps.length; i++) {
+        setTimeout(() => {
+          setBookingAnimationStep(i);
+        }, i * 2000);
+      }
+      
+      // Show final success message
+      setTimeout(() => {
+        setShowBookingAnimation(false);
+        setPopupMessage(`✅ Заявка успешно отправлена! Торги стартовали. Ожидайте результаты на почту ${bookingData.confirmation_email}`);
+        setShowPopup(true);
+        
+        // Reset form
+        setBookingData({
+          company_name: '',
+          contact_name: '',
+          contact_phone: '',
+          sender_phone: '',
+          factory_address: '',
+          confirmation_email: userEmail || '',
+          change_delivery_terms: false,
+          delivery_terms: '',
+          tnved_code: '',
+          delivery_conditions: '',
+          uploaded_files: []
+        });
+      }, animationSteps.length * 2000 + 1000);
+
+    } catch (error) {
+      console.error('Booking submission error:', error);
+      alert(`❌ Ошибка при отправке заявки: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setIsSubmittingBooking(false);
+    }
+  };
+
   // ___________________________________________________________________________
 
   const Popup = ({ message, onClose }) => {
