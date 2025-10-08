@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "//": "Updated configuration for proper React build - 2025-01-08",
   "builds": [
     {
       "src": "api/index.py",
