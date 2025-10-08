@@ -1,19 +1,13 @@
 {
   "version": 2,
-  "name": "logistix-or-updated-2025-01-08",
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/build",
+  "installCommand": "cd frontend && npm install",
+  "framework": "create-react-app",
   "builds": [
     {
       "src": "api/index.py",
       "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build",
-        "installCommand": "cd frontend && npm install",
-        "buildCommand": "cd frontend && npm run build"
-      }
     }
   ],
   "routes": [
@@ -23,11 +17,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/$1"
+      "dest": "/index.html"
     }
-  ],
-  "env": {
-    "REACT_APP_BACKEND_URL": "https://logistix-or.vercel.app",
-    "DATABASE_URL": "@database_url"
-  }
+  ]
 }
