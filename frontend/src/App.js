@@ -57,6 +57,9 @@ const SearchForm = ({ onSearch, loading }) => {
   const [containerTypes, setContainerTypes] = useState([]);
   const [originSuggestions, setOriginSuggestions] = useState([]);
   const [destSuggestions, setDestSuggestions] = useState([]);
+  
+  // Дополнительная проверка для отладки
+  console.log('App render - containerTypes state:', containerTypes, 'type:', typeof containerTypes);
   const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
   const [showDestSuggestions, setShowDestSuggestions] = useState(false);
 
@@ -322,11 +325,18 @@ const SearchForm = ({ onSearch, loading }) => {
               required
             >
               <option value="">Выберите размер</option>
-              {Array.isArray(containerTypes) && containerTypes.map(container => (
-                <option key={container.id} value={container.name}>
-                  {container.name} ({container.capacity_m3}м³)
-                </option>
-              ))}
+              {(() => {
+                console.log('Rendering containerTypes:', containerTypes, 'isArray:', Array.isArray(containerTypes));
+                if (!Array.isArray(containerTypes)) {
+                  console.error('containerTypes is not an array:', typeof containerTypes, containerTypes);
+                  return null;
+                }
+                return containerTypes.map(container => (
+                  <option key={container.id} value={container.name}>
+                    {container.name} ({container.capacity_m3}м³)
+                  </option>
+                ));
+              })()}
             </select>
           </div>
 
