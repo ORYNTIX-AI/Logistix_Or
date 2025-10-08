@@ -130,6 +130,36 @@ class CalculationRequest(BaseModel):
     shipmentId: str
     clientId: str
 
+class BookingRequest(BaseModel):
+    # Данные о компании и контактах
+    company_name: str
+    contact_name: str  # ФИ контакта загрузке
+    contact_phone: str  # телефон контакта  
+    sender_phone: str   # телефон отправителя
+    factory_address: str  # адрес фабрики
+    confirmation_email: str  # почта для подтверждения бронирования
+    
+    # Условия поставки
+    change_delivery_terms: bool = False  # чекбокс изменение условия поставки
+    delivery_terms: Optional[str] = None  # условия поставки из выпадающего списка
+    
+    # Товарные данные
+    tnved_code: str  # код ТНВЭД
+    delivery_conditions: str  # условия поставки
+    
+    # Файлы (пока сохраняем имена файлов)
+    uploaded_files: Optional[List[str]] = []
+    
+    # Данные о выбранном маршруте
+    route_id: str
+    search_query: dict  # оригинальный поисковый запрос
+    
+class BookingResponse(BaseModel):
+    booking_id: str
+    status: str
+    message: str
+    webhook_sent: bool = False
+
 # Auth functions
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
