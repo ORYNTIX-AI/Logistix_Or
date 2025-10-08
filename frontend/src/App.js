@@ -2173,6 +2173,25 @@ const App = () => {
         </div>
       </footer>
 
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <BookingModal
+          isOpen={showBookingModal}
+          onClose={() => setShowBookingModal(false)}
+          selectedRoute={selectedRoute}
+          bookingData={bookingData}
+          setBookingData={setBookingData}
+          onSubmit={handleBookingSubmit}
+          isSubmitting={isSubmittingBooking}
+        />
+      )}
+
+      {/* Booking Animation */}
+      <BookingAnimation 
+        isVisible={showBookingAnimation} 
+        currentStep={bookingAnimationStep} 
+      />
+
       {/* Popup */}
       {showPopup && (
         <Popup message={popupMessage} onClose={() => setShowPopup(false)} />
