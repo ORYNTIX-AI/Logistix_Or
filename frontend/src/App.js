@@ -508,7 +508,7 @@ const SearchResults = ({ results, loading, onRequestCalculation }) => {
                 <button 
                   className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-md"
                   onClick={() => onRequestCalculation(result)}>
-                  📞 Запросить расчет
+                  📞 Забронировать
                 </button>
                 
                 <p className="text-xs text-gray-500 mt-2">
