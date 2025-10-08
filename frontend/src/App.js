@@ -230,7 +230,7 @@ const SearchForm = ({ onSearch, loading }) => {
             />
             {showOriginSuggestions && (
               <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg">
-                {originSuggestions.map(port => (
+                {Array.isArray(originSuggestions) && originSuggestions.map(port => (
                   <div
                     key={port.id}
                     onClick={() => selectOriginPort(port)}
@@ -265,7 +265,7 @@ const SearchForm = ({ onSearch, loading }) => {
             />
             {showDestSuggestions && (
               <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg">
-                {destSuggestions.map(port => (
+                {Array.isArray(destSuggestions) && destSuggestions.map(port => (
                   <div
                     key={port.id}
                     onClick={() => selectDestPort(port)}
@@ -321,7 +321,7 @@ const SearchForm = ({ onSearch, loading }) => {
               required
             >
               <option value="">Выберите размер</option>
-              {containerTypes.map(container => (
+              {Array.isArray(containerTypes) && containerTypes.map(container => (
                 <option key={container.id} value={container.name}>
                   {container.name} ({container.capacity_m3}м³)
                 </option>
@@ -1116,7 +1116,7 @@ const AdminPanel = ({ token, onLogout, onBack }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {containerTypes.map(container => (
+                    {Array.isArray(containerTypes) && containerTypes.map(container => (
                       <tr key={container.id} className="border-b">
                         <td className="px-4 py-2">{container.name}</td>
                         <td className="px-4 py-2">{container.size}</td>
@@ -1158,7 +1158,7 @@ const AdminPanel = ({ token, onLogout, onBack }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {routes.map(route => (
+                    {Array.isArray(routes) && routes.map(route => (
                       <tr key={route.id} className="border-b">
                         <td className="px-4 py-2">{route.origin_port} → {route.destination_port}</td>
                         <td className="px-4 py-2">{route.transport_type || 'ЖД'}</td>
@@ -1560,7 +1560,7 @@ const BookingModal = ({
                       disabled={isSubmitting}
                     >
                       <option value="">Выберите условие поставки...</option>
-                      {deliveryTerms.map(term => (
+                      {Array.isArray(deliveryTerms) && deliveryTerms.map(term => (
                         <option key={term.code} value={term.code}>
                           {term.name}
                         </option>
@@ -1587,7 +1587,7 @@ const BookingModal = ({
                     <div className="mt-2">
                       <p className="text-sm text-gray-600 mb-1">Загруженные файлы:</p>
                       <div className="space-y-1">
-                        {bookingData.uploaded_files.map((fileName, index) => (
+                        {Array.isArray(bookingData.uploaded_files) && bookingData.uploaded_files.map((fileName, index) => (
                           <div key={index} className="flex items-center justify-between bg-gray-100 p-2 rounded">
                             <span className="text-sm text-gray-700 truncate">{fileName}</span>
                             <button
