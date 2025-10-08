@@ -1777,6 +1777,109 @@ const App = () => {
 
   // ___________________________________________________________________________
 
+  // Booking Animation Component - показывает процесс торгов
+  const BookingAnimation = ({ isVisible, currentStep }) => {
+    const steps = [
+      {
+        title: "Отправляем уведомления перевозчикам",
+        description: "Уведомляем перевозчиков через WhatsApp о запросе снижения цены",
+        icon: "📱"
+      },
+      {
+        title: "Получаем предложения от перевозчиков", 
+        description: "Перевозчики отправляют свои лучшие предложения",
+        icon: "📋"
+      },
+      {
+        title: "Выбираем лучшее предложение",
+        description: "Анализируем все предложения и выбираем самую выгодную цену",
+        icon: "🎯"
+      },
+      {
+        title: "Уведомляем победителя торгов",
+        description: "Сообщаем победившему перевозчику и передаем ваши данные",
+        icon: "🏆"
+      },
+      {
+        title: "Отправляем данные клиенту",
+        description: "Высылаем вам контакты победителя и окончательную цену",
+        icon: "📧"
+      }
+    ];
+
+    if (!isVisible) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">🔄 Процесс торгов запущен</h2>
+            <p className="text-gray-600">Идет обработка вашей заявки...</p>
+          </div>
+          
+          <div className="space-y-4">
+            {steps.map((step, index) => {
+              const isActive = index === currentStep;
+              const isCompleted = index < currentStep;
+              const isUpcoming = index > currentStep;
+              
+              return (
+                <div key={index} className={`flex items-center p-4 rounded-lg transition-all duration-500 ${
+                  isActive ? 'bg-blue-100 border-2 border-blue-300 scale-105' : 
+                  isCompleted ? 'bg-green-50 border border-green-200' : 
+                  'bg-gray-50 border border-gray-200'
+                }`}>
+                  <div className={`text-2xl mr-4 transition-all duration-300 ${
+                    isActive ? 'animate-pulse' : ''
+                  }`}>
+                    {isCompleted ? '✅' : step.icon}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h3 className={`font-semibold ${
+                      isActive ? 'text-blue-800' : 
+                      isCompleted ? 'text-green-800' : 
+                      'text-gray-600'
+                    }`}>
+                      {step.title}
+                    </h3>
+                    <p className={`text-sm ${
+                      isActive ? 'text-blue-600' : 
+                      isCompleted ? 'text-green-600' : 
+                      'text-gray-500'
+                    }`}>
+                      {step.description}
+                    </p>
+                  </div>
+                  
+                  {isActive && (
+                    <div className="ml-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    </div>
+                  )}
+                  
+                  {isCompleted && (
+                    <div className="ml-4 text-green-500 font-bold">
+                      ✓
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="mt-8 text-center">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-800">
+                💡 <strong>Примерное время:</strong> 3-15 минут. Вы получите уведомление на почту после завершения торгов.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const Popup = ({ message, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
