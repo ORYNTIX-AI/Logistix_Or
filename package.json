@@ -1,0 +1,16 @@
+{
+  "name": "logistix-or",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && yarn install && yarn build",
+    "dev": "cd frontend && yarn start",
+    "start": "cd frontend && yarn start"
+  },
+  "workspaces": [
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
