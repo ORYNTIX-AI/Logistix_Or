@@ -1491,7 +1491,7 @@ const App = () => {
       </div>
 
       {/* Search Results */}
-      <SearchResults results={searchResults} loading={loading} onRequestCalculation={handleRequestCalculation} />
+      <SearchResults results={searchResults} loading={loading} onBooking={handleBooking} />
 
       {/* Features Section */}
       {searchResults.length === 0 && !loading && (
