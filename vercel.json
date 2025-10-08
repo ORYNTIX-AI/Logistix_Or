@@ -24,5 +24,8 @@
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
-  ]
+  ],
+  "env": {
+    "REACT_APP_BACKEND_URL": "https://logistix-or-frontend-nfyb-git-main-oryntix-team.vercel.app"
+  }
 }
