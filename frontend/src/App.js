@@ -1293,30 +1293,18 @@ const App = () => {
     }
   };
 
-  const handleRequestCalculation = async (result) => {
-    console.log('Current userEmail from state:', userEmail);
-    console.log('Current user_email from localStorage:', localStorage.getItem('user_email'));
-  
+  const handleBooking = (result) => {
     if (!userEmail) {
-      alert("Пожалуйста, авторизуйтесь или зарегистрируйтесь, чтобы запросить расчет.");
+      alert("Пожалуйста, авторизуйтесь или зарегистрируйтесь, чтобы забронировать.");
       return;
     }
-
-    try {
-      console.log('Inside TRY : ', userEmail);
-      const response = await axios.post(`${API}/calculation`, {
-        shipmentId: result.id,
-        clientId: userEmail
-      });
-      // alert("✅ Ваш запрос отправлен! Скоро с вами свяжется перевозчик.");
-      setPopupMessage(`✅Ваш запрос отправлен на почту ${userEmail}!`);
-      setShowPopup(true);
-
-      console.log("Calculation response:", response.data);
-    } catch (error) {
-      console.error("Ошибка при запросе расчета:", error);
-      alert("❌ Не удалось отправить запрос. Попробуйте позже.", error);
-    }
+    
+    setSelectedRoute(result);
+    setBookingData(prev => ({
+      ...prev,
+      confirmation_email: userEmail
+    }));
+    setShowBookingModal(true);
   };
 
   // ___________________________________________________________________________
