@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
 const API = `${BACKEND_URL}/api`;
 
 // Logo Component
@@ -66,6 +66,7 @@ const SearchForm = ({ onSearch, loading }) => {
 
   const fetchInitialData = async () => {
     try {
+      console.log('Fetching data from:', API);
       const [portsRes, containerRes] = await Promise.all([
         axios.get(`${API}/ports`),
         axios.get(`${API}/container-types`)
@@ -75,6 +76,9 @@ const SearchForm = ({ onSearch, loading }) => {
       console.log('Loaded data:', { ports: portsRes.data.length, containers: containerRes.data.length });
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
+      // Устанавливаем пустые массивы по умолчанию, чтобы приложение не падало
+      setPorts([]);
+      setContainerTypes([]);
     }
   };
 
