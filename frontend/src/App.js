@@ -404,7 +404,7 @@ const SearchForm = ({ onSearch, loading }) => {
 };
 
 // Search Results Component
-const SearchResults = ({ results, loading, onRequestCalculation }) => {
+const SearchResults = ({ results, loading, onBooking }) => {
   // Debug info
   console.log('SearchResults component - results:', results);
   console.log('SearchResults component - loading:', loading);
