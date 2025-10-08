@@ -2045,7 +2045,7 @@ const App = () => {
       <div 
         className="relative bg-cover bg-center bg-no-repeat h-96"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(https://images.unsplash.com/photo-1605745341112-85968b19335b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxjYXJnbyUyMHNoaXB8ZW58MHx8fHwxNzUzMjU0MDY3fDA&ixlib=rb-4.1.0&q=85)'
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(https://images.unsplash.com/photo-1651649503984-5b5f3514d6f0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxjYXJnbyUyMHRyYWlufGVufDB8fHx8MTc1OTk0MzU4Nnww&ixlib=rb-4.1.0&q=85)'
         }}
       >
         <div className="absolute inset-0 flex items-center justify-center">
