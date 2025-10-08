@@ -67,13 +67,14 @@ const SearchForm = ({ onSearch, loading }) => {
   const fetchInitialData = async () => {
     try {
       console.log('Fetching data from:', API);
+      console.log('Current time:', new Date().toISOString());
       const [portsRes, containerRes] = await Promise.all([
         axios.get(`${API}/ports`),
         axios.get(`${API}/container-types`)
       ]);
-      setPorts(portsRes.data);
-      setContainerTypes(containerRes.data);
-      console.log('Loaded data:', { ports: portsRes.data.length, containers: containerRes.data.length });
+      setPorts(Array.isArray(portsRes.data) ? portsRes.data : []);
+      setContainerTypes(Array.isArray(containerRes.data) ? containerRes.data : []);
+      console.log('Loaded data:', { ports: portsRes.data?.length || 0, containers: containerRes.data?.length || 0 });
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
       // Устанавливаем пустые массивы по умолчанию, чтобы приложение не падало
