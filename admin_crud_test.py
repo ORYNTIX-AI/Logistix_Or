@@ -3,7 +3,7 @@ import requests
 import json
 import uuid
 
-API_BASE = 'https://f8910cd7-f8ec-4a09-be75-5efd2caae23c.preview.emergentagent.com/api'
+API_BASE = 'https://env-config-6.preview.emergentagent.com/api'
 
 print("Testing Admin CRUD Operations...")
 
