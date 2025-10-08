@@ -1257,6 +1257,23 @@ const App = () => {
 
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  
+  // Booking modal states
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [bookingData, setBookingData] = useState({
+    company_name: '',
+    contact_name: '',
+    contact_phone: '',
+    sender_phone: '',
+    factory_address: '',
+    confirmation_email: userEmail || '',
+    change_delivery_terms: false,
+    delivery_terms: '',
+    tnved_code: '',
+    delivery_conditions: '',
+    uploaded_files: []
+  });
 
 
   const handleSearch = async (searchData) => {
