@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://backend-production-3a25.up.railway.app";
 const API = `${BACKEND_URL}/api`;
 
 // Logo Component
