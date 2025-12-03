@@ -22,6 +22,10 @@ load_dotenv(ROOT_DIR / '.env')
 database_url = os.environ['DATABASE_URL']
 db_pool = None
 
+# n8n integration endpoints
+N8N_BASE_URL = "https://n8n.by"
+N8N_WEBHOOK_BASE = f"{N8N_BASE_URL}/webhook"
+
 # Create the main app without a prefix
 app = FastAPI()
 
@@ -36,7 +40,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Admin credentials (hardcoded for MVP)
 ADMIN_LOGIN = "admin"
-ADMIN_PASSWORD = "admin123"
+ADMIN_PASSWORD = "admin127"
 
 # Models
 class ContainerType(BaseModel):
@@ -295,7 +299,7 @@ async def search_shipments(query: SearchQuery):
     pool = await get_db_pool()
     async with pool.acquire() as conn:
         webhook_row = await conn.fetchrow('SELECT webhook_url FROM webhook_settings LIMIT 1')
-        webhook_url = webhook_row['webhook_url'] if webhook_row else "https://n8n210980.hostkey.in/webhook/search"
+        webhook_url = webhook_row['webhook_url'] if webhook_row else f"{N8N_WEBHOOK_BASE}/search"
     
     # Convert our data format to webhook API format
     # Map container type to size number
@@ -435,7 +439,7 @@ async def calculate_rate(calc_req: CalculationRequest):
     pool = await get_db_pool()
 
     # 1. Отправляем на внешний webhook
-    url = "https://n8n210980.hostkey.in/webhook/calculate"
+    url = f"{N8N_WEBHOOK_BASE}/calculate"
     payload = {"shipmentId": calc_req.shipmentId, "clientId": calc_req.clientId}
 
     import httpx
