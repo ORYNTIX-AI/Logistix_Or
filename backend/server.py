@@ -23,8 +23,7 @@ database_url = os.environ['DATABASE_URL']
 db_pool = None
 
 # n8n integration endpoints
-N8N_BASE_URL = "https://n8n.by"
-N8N_WEBHOOK_BASE = f"{N8N_BASE_URL}/webhook"
+N8N_WEBHOOK_BASE = "https://n8n.by/webhook"
 
 # Create the main app without a prefix
 app = FastAPI()
