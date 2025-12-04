@@ -5,6 +5,7 @@ const path = require('path');
 const config = {
   disableHotReload: process.env.DISABLE_HOT_RELOAD === 'true',
 };
+const isProduction = process.env.NODE_ENV === 'production';
 
 module.exports = {
   webpack: {
@@ -13,6 +14,14 @@ module.exports = {
     },
     configure: (webpackConfig) => {
       
+      if (isProduction) {
+        // Ensure no development-only plugins leak into production bundles
+        webpackConfig.plugins = webpackConfig.plugins.filter(plugin => {
+          const name = plugin?.constructor?.name;
+          return name !== 'ReactRefreshPlugin' && name !== 'HotModuleReplacementPlugin';
+        });
+      }
+
       // Disable hot reload completely if environment variable is set
       if (config.disableHotReload) {
         // Remove hot reload related plugins
