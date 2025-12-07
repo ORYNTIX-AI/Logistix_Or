@@ -607,8 +607,8 @@ async def create_booking(booking_data: BookingRequest, current_user: dict = Depe
     Создать заявку на бронирование с последующей отправкой в систему торгов
     
     Этот эндпоинт:
-    1. Сохраняет данные бронирования в базу данных
-    2. Отправляет webhook для запуска процесса торгов в n8n
+    1. Генерирует UUID для бронирования
+    2. Отправляет собранные данные из формы в webhook n8n
     3. Возвращает ID бронирования и статус
     
     После создания бронирования n8n выполнит:
@@ -621,53 +621,8 @@ async def create_booking(booking_data: BookingRequest, current_user: dict = Depe
         # Генерируем ID для бронирования
         booking_id = str(uuid.uuid4())
         
-        # Сохраняем данные бронирования в базу данных
-        pool = await get_db_pool()
-        async with pool.acquire() as conn:
-            # Создаем таблицу bookings если её нет
-            await conn.execute('''
-                CREATE TABLE IF NOT EXISTS bookings (
-                    id VARCHAR PRIMARY KEY,
-                    user_id VARCHAR NOT NULL,
-                    company_name VARCHAR NOT NULL,
-                    contact_name VARCHAR NOT NULL,
-                    contact_phone VARCHAR NOT NULL,
-                    sender_phone VARCHAR NOT NULL,
-                    factory_address TEXT NOT NULL,
-                    confirmation_email VARCHAR NOT NULL,
-                    change_delivery_terms BOOLEAN DEFAULT FALSE,
-                    delivery_terms VARCHAR,
-                    tnved_code VARCHAR NOT NULL,
-                    delivery_conditions VARCHAR NOT NULL,
-                    uploaded_files TEXT[], 
-                    route_id VARCHAR NOT NULL,
-                    search_query JSONB NOT NULL,
-                    status VARCHAR DEFAULT 'pending',
-                    created_at TIMESTAMP DEFAULT NOW(),
-                    updated_at TIMESTAMP DEFAULT NOW()
-                )
-            ''')
-            
-            # Вставляем данные бронирования
-            await conn.execute('''
-                INSERT INTO bookings (
-                    id, user_id, company_name, contact_name, contact_phone, 
-                    sender_phone, factory_address, confirmation_email, 
-                    change_delivery_terms, delivery_terms, tnved_code, 
-                    delivery_conditions, uploaded_files, route_id, search_query
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-            ''', 
-                booking_id, current_user["id"], booking_data.company_name,
-                booking_data.contact_name, booking_data.contact_phone,
-                booking_data.sender_phone, booking_data.factory_address,
-                booking_data.confirmation_email, booking_data.change_delivery_terms,
-                booking_data.delivery_terms, booking_data.tnved_code,
-                booking_data.delivery_conditions, booking_data.uploaded_files,
-                booking_data.route_id, json.dumps(booking_data.search_query)
-            )
-        
-        # Подготавливаем данные для webhook (отправка в n8n для процесса торгов)
-        webhook_data = {
+        # Подготавливаем данные для webhook (все данные из формы)
+        payload = {
             "booking_id": booking_id,
             "user_id": current_user["id"],
             "user_email": current_user["email"],
@@ -677,41 +632,35 @@ async def create_booking(booking_data: BookingRequest, current_user: dict = Depe
             "sender_phone": booking_data.sender_phone,
             "factory_address": booking_data.factory_address,
             "confirmation_email": booking_data.confirmation_email,
+            "change_delivery_terms": booking_data.change_delivery_terms,
             "delivery_terms": booking_data.delivery_terms,
             "tnved_code": booking_data.tnved_code,
             "delivery_conditions": booking_data.delivery_conditions,
+            "uploaded_files": booking_data.uploaded_files,
             "route_id": booking_data.route_id,
             "search_query": booking_data.search_query,
             "timestamp": datetime.utcnow().isoformat(),
             "event_type": "booking_created"
         }
         
-        # Получаем webhook URL из настроек админки  
+        # Отправляем на внешний webhook
+        url = f"{N8N_WEBHOOK_BASE}/logistics/application-get"
+        
+        import httpx
         webhook_sent = False
         try:
-            async with pool.acquire() as conn:
-                settings = await conn.fetchrow('SELECT webhook_url FROM webhook_settings ORDER BY updated_at DESC LIMIT 1')
-                if settings and settings['webhook_url']:
-                    webhook_url = settings['webhook_url']
-                    
-                    # Отправляем webhook в n8n
-                    import aiohttp
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(
-                            webhook_url, 
-                            json=webhook_data,
-                            timeout=aiohttp.ClientTimeout(total=10)
-                        ) as response:
-                            if response.status == 200:
-                                webhook_sent = True
-                                print(f"✅ Webhook sent successfully for booking {booking_id}")
-                            else:
-                                print(f"❌ Webhook failed with status {response.status} for booking {booking_id}")
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, json=payload, timeout=30)
+                if response.status_code == 200:
+                    logging.info(f"📦 Booking webhook response: {response.json()}")
+                    webhook_response = response.json()
+                    webhook_sent = True
                 else:
-                    print(f"⚠️ No webhook URL configured for booking {booking_id}")
-        except Exception as webhook_error:
-            print(f"❌ Webhook error for booking {booking_id}: {webhook_error}")
-            # Не останавливаем процесс, если webhook не работает
+                    logging.warning(f"⚠️ Webhook returned status {response.status_code}")
+                    webhook_response = {"error": f"Webhook returned {response.status_code}"}
+        except Exception as e:
+            logging.error(f"❌ Webhook call failed: {e}")
+            webhook_response = {"error": str(e)}
         
         return BookingResponse(
             booking_id=booking_id,
@@ -721,7 +670,7 @@ async def create_booking(booking_data: BookingRequest, current_user: dict = Depe
         )
         
     except Exception as e:
-        print(f"❌ Booking creation error: {e}")
+        logging.error(f"❌ Booking creation error: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка создания заявки: {str(e)}")
 
 # Add the API router to the main app
