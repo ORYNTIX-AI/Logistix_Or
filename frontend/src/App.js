@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://backend-production-3a25.up.railway.app";
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 // Logo Component
@@ -89,7 +89,7 @@ const SearchForm = ({ onSearch, loading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Basic validation - just check if ports are selected (should be codes now)
+    // Basic validation - just check if ports are selected (should be IDs now)
     // старая версия валидации 
     // if (!searchData.origin_port || searchData.origin_port.length < 2) {
     //   alert('Пожалуйста, выберите станцию отправления из списка');
@@ -142,14 +142,16 @@ const SearchForm = ({ onSearch, loading }) => {
   const filterPorts = (input, excludePort = '') => {
     if (!input) return [];
     return ports.filter(port => {
-      const matchesSearch = port.name.toLowerCase().includes(input.toLowerCase()) ||
-                           port.city.toLowerCase().includes(input.toLowerCase()) ||
-                           port.country.toLowerCase().includes(input.toLowerCase()) ||
-                           port.code.toLowerCase().includes(input.toLowerCase());
+      const inputLower = input.toLowerCase();
+      const matchesSearch = port.name.toLowerCase().includes(inputLower) ||
+                           (port.name_en && port.name_en.toLowerCase().includes(inputLower)) ||
+                           port.city.toLowerCase().includes(inputLower) ||
+                           port.country.toLowerCase().includes(inputLower) ||
+                           port.code.toLowerCase().includes(inputLower);
       
       const matchesTransport = port.transport_types.includes("ЖД"); // Only railway stations
       
-      return matchesSearch && matchesTransport && port.code !== excludePort;
+      return matchesSearch && matchesTransport && port.id !== excludePort;
     }).slice(0, 8);
   };
   // старя версия:
@@ -195,13 +197,13 @@ const SearchForm = ({ onSearch, loading }) => {
 
 
   const selectOriginPort = (port) => {
-    handleChange('origin_port', port.code); // Store port code for API
+    handleChange('origin_port', port.id); // Store port id for API
     setDisplayNames(prev => ({ ...prev, origin_port_display: port.name })); // Store display name
     setShowOriginSuggestions(false);
   };
 
   const selectDestPort = (port) => {
-    handleChange('destination_port', port.code); // Store port code for API
+    handleChange('destination_port', port.id); // Store port id for API
     setDisplayNames(prev => ({ ...prev, destination_port_display: port.name })); // Store display name
     setShowDestSuggestions(false);
   };

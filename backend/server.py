@@ -307,35 +307,19 @@ async def search_shipments(query: SearchQuery):
         "40ft": "40"
     }
     
-    # Convert port codes to city names for webhook API
-    # Find port info by code to get city name
+    # Convert port IDs to English names for webhook API
+    # Find port info by id to get English name (name_en)
     async with pool.acquire() as conn:
-        origin_port_row = await conn.fetchrow('SELECT city FROM ports WHERE code = $1', query.origin_port)
-        dest_port_row = await conn.fetchrow('SELECT city FROM ports WHERE code = $1', query.destination_port)
+        origin_port_row = await conn.fetchrow('SELECT name_en FROM ports WHERE id = $1', query.origin_port)
+        dest_port_row = await conn.fetchrow('SELECT name_en FROM ports WHERE id = $1', query.destination_port)
     
-    origin_city = origin_port_row['city'] if origin_port_row else query.origin_port
-    dest_city = dest_port_row['city'] if dest_port_row else query.destination_port
-    
-    # Map city names to webhook expected format
-    city_mapping = {
-        "Чэнду": "Chengdu",
-        "Гуанчжоу": "Guangzhou", 
-        "Шанхай": "Shanghai",
-        "Шэньчжэнь": "Shenzhen",
-        "Пекин": "Beijing",
-        "Минск": "Minsk",
-        "Москва": "Moscow",
-        "Санкт-Петербург": "Saint Petersburg",
-        "Алматы": "Almaty",
-        "Ташкент": "Tashkent"
-    }
-    
-    webhook_from = city_mapping.get(origin_city, origin_city)
-    webhook_to = city_mapping.get(dest_city, dest_city)
+    # Use English name from database, fallback to original value if not found
+    webhook_from = origin_port_row['name_en'] if origin_port_row and origin_port_row['name_en'] else query.origin_port
+    webhook_to = dest_port_row['name_en'] if dest_port_row and dest_port_row['name_en'] else query.destination_port
     
     webhook_params = {
-        "from": webhook_from,  # Send mapped city name for webhook
-        "to": webhook_to,  # Send mapped city name for webhook  
+        "from": webhook_from,  # Send English name (name_en) for webhook
+        "to": webhook_to,  # Send English name (name_en) for webhook  
         "container_size": container_size_map.get(query.container_type, "40"),
         # "price": "5100",  # Base price for filtering
         # "ETD": query.departure_date_from.isoformat(),
