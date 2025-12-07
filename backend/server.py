@@ -310,8 +310,8 @@ async def search_shipments(query: SearchQuery):
     # Convert port IDs to English names for webhook API
     # Find port info by id to get English name (name_en)
     async with pool.acquire() as conn:
-        origin_port_row = await conn.fetchrow('SELECT name_en FROM ports WHERE id = $1', query.origin_port)
-        dest_port_row = await conn.fetchrow('SELECT name_en FROM ports WHERE id = $1', query.destination_port)
+        origin_port_row = await conn.fetchrow('SELECT * FROM ports WHERE id = $1', query.origin_port)
+        dest_port_row = await conn.fetchrow('SELECT * FROM ports WHERE id = $1', query.destination_port)
     
     # Use English name from database, fallback to original value if not found
     webhook_from = origin_port_row['name_en'] if origin_port_row and origin_port_row['name_en'] else query.origin_port
@@ -349,13 +349,13 @@ async def search_shipments(query: SearchQuery):
                             # Convert webhook result to our SearchResult format
                             result = {
                                 "id": item.get("id", str(uuid.uuid4())),
-                                "origin_port": item.get("from", query.origin_port),
-                                "destination_port": item.get("to", query.destination_port),
+                                "origin_port": item.get("origin_port", query.origin_port),
+                                "destination_port": item.get("destination_port", query.destination_port),
                                 "carrier": item.get("carrier", "Railway Express"),  # Default carrier
-                                "departure_date_range": item.get("ETD", f"{query.departure_date_from.strftime('%d.%m')} - {query.departure_date_to.strftime('%d.%m.%Y')}"),
-                                "transit_time_days": item.get("TT") or 15,
-                                "container_type": item.get("container_size"),
-                                "price_from_usd": float(item.get("price", 0)),
+                                "departure_date_range": item.get("departure_date_range", f"{query.departure_date_from.strftime('%d.%m')} - {query.departure_date_to.strftime('%d.%m.%Y')}"),
+                                "transit_time_days": item.get("transit_time_days") or 15,
+                                "container_type": item.get("container_type"),
+                                "price_from_usd": float(item.get("price_from_usd", 0)),
                                 "is_dangerous_cargo": query.is_dangerous_cargo,
                                 "available_containers": 5,
                                 "booking_deadline": query.departure_date_from.isoformat(),
