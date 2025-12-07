@@ -384,9 +384,9 @@ async def search_shipments(query: SearchQuery):
         
         # Generate different routes based on popular railway directions
         routes_data = [
-            {"carrier": "China Railways Express", "base_price": 1000, "transit_days": 15, "route_desc": "Популярный маршрут"},
-            {"carrier": "New Silk Road Express", "base_price": 1001, "transit_days": 18, "route_desc": "Прямое сообщение"},
-            {"carrier": "RZD Logistics", "base_price": 1010, "transit_days": 12, "route_desc": "Быстрая доставка"}
+            {"origin_port": "Ухань", "destination_port": "Москва", "carrier": "China Railways Express", "base_price": 1000, "transit_days": 15, "route_desc": "Популярный маршрут"},
+            {"origin_port": "Пекин", "destination_port": "Минск", "carrier": "New Silk Road Express", "base_price": 1001, "transit_days": 18, "route_desc": "Прямое сообщение"},
+            {"origin_port": "Актау", "destination_port": "Москва", "carrier": "RZD Logistics", "base_price": 1010, "transit_days": 12, "route_desc": "Быстрая доставка"}
         ]
         
         for i, route in enumerate(routes_data):
@@ -401,8 +401,8 @@ async def search_shipments(query: SearchQuery):
             
             fallback_results.append({
                 "id": str(uuid.uuid4()),
-                "origin_port": query.origin_port,
-                "destination_port": query.destination_port,
+                "origin_port": route["origin_port"],
+                "destination_port": route["destination_port"],
                 "carrier": route["carrier"],
                 "departure_date_range": f"{query.departure_date_from.strftime('%d.%m')} - {query.departure_date_to.strftime('%d.%m.%Y')}",
                 "transit_time_days": route["transit_days"],
