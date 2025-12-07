@@ -602,7 +602,7 @@ async def get_delivery_terms():
 
 # Booking endpoint - эндпоинт для создания бронирования
 @api_router.post("/booking", response_model=BookingResponse)
-async def create_booking(booking_data: BookingRequest, current_user: dict = Depends(get_current_user)):
+async def create_booking(booking_data: BookingRequest):
     """
     Создать заявку на бронирование с последующей отправкой в систему торгов
     
@@ -624,8 +624,8 @@ async def create_booking(booking_data: BookingRequest, current_user: dict = Depe
         # Подготавливаем данные для webhook (все данные из формы)
         payload = {
             "booking_id": booking_id,
-            "user_id": current_user["id"],
-            "user_email": current_user["email"],
+            "user_id": None,  # Временно отключена авторизация
+            "user_email": booking_data.confirmation_email,  # Используем email из формы
             "company_name": booking_data.company_name,
             "contact_name": booking_data.contact_name,
             "contact_phone": booking_data.contact_phone,
