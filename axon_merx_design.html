@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXON MERX | Железнодорожные грузоперевозки</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* ============================================
+           ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ AXON MERX
+           ============================================ */
+        :root {
+            --axon-navy: #10254A;
+            --axon-navy-light: #1a3a6e;
+            --axon-navy-dark: #0a1a35;
+            --axon-accent: #3d5a7f;
+            --axon-gray-light: #D3D3D3;
+            --axon-gray: #808080;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+                "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+                "Helvetica Neue", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        code {
+            font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+                monospace;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--axon-navy);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--axon-navy-dark);
+        }
+
+        /* Form styling */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.3);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            filter: invert(0.1);
+        }
+
+        /* Button hover effects */
+        button {
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Loading animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Card hover effects */
+        .hover\:shadow-xl:hover {
+            box-shadow: 0 25px 50px -12px rgba(16, 37, 74, 0.25);
+        }
+
+        /* Form field focus effects */
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(16, 37, 74, 0.15);
+        }
+
+        /* Custom animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Hero section styling */
+        .hero-overlay {
+            background: linear-gradient(135deg, rgba(16, 37, 74, 0.85) 0%, rgba(10, 26, 53, 0.95) 100%);
+        }
+
+        /* Search form styling */
+        .search-form {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.97);
+        }
+
+        /* Results card styling */
+        .result-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border-left: 4px solid transparent;
+        }
+
+        .result-card:hover {
+            transform: translateY(-4px);
+            border-left-color: var(--axon-navy);
+        }
+
+        /* Price display styling */
+        .price-display {
+            background: linear-gradient(135deg, var(--axon-navy) 0%, var(--axon-navy-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Logo styling */
+        .axon-logo-text {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            font-size: 1.5rem;
+            color: var(--axon-navy);
+        }
+
+        /* Admin panel styling */
+        .admin-nav {
+            border-bottom: 1px solid var(--axon-gray-light);
+        }
+
+        .admin-tab {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--axon-navy);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .admin-tab.active::after {
+            transform: translateX(0);
+        }
+
+        /* Table styling */
+        .admin-table {
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            border: 1px solid var(--axon-gray-light);
+        }
+
+        .admin-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+
+        .admin-table tr:hover {
+            background-color: rgba(16, 37, 74, 0.03);
+        }
+
+        /* Modal and overlay effects */
+        .modal-overlay {
+            backdrop-filter: blur(5px);
+            background: rgba(16, 37, 74, 0.3);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 640px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .search-form {
+                margin: 0 1rem;
+            }
+            
+            .result-card {
+                padding: 1rem;
+            }
+
+            .axon-logo-text {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Custom gradient buttons */
+        .btn-axon-primary {
+            background: linear-gradient(135deg, var(--axon-navy) 0%, var(--axon-navy-light) 100%);
+        }
+
+        .btn-axon-primary:hover {
+            background: linear-gradient(135deg, var(--axon-navy-dark) 0%, var(--axon-navy) 100%);
+        }
+
+        /* Feature icons */
+        .feature-icon {
+            background: linear-gradient(135deg, var(--axon-navy) 0%, var(--axon-navy-light) 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    
+    <!-- ============================================
+         HEADER (Шапка сайта)
+         ============================================ -->
+    <div class="bg-white shadow-md border-b-2" style="border-bottom-color: var(--axon-navy);">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <!-- Logo Component - AXON MERX -->
+                <div class="flex items-center space-x-4">
+                    <div class="h-14 w-14 rounded-lg flex items-center justify-center shadow-lg" 
+                         style="background: linear-gradient(135deg, var(--axon-navy) 0%, var(--axon-navy-light) 100%);">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <div class="axon-logo-text">
+                        AXON | MERX
+                    </div>
+                </div>
+                <p class="text-gray-600 hidden md:block ml-4" style="border-left: 2px solid var(--axon-gray-light); padding-left: 1rem;">
+                    Платформа поиска железнодорожных перевозок
+                </p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 btn-axon-primary hover:shadow-lg transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Войти</span>
+                </button>
+                <button class="bg-white border-2 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 hover:bg-gray-50 transition-all" 
+                        style="border-color: var(--axon-navy); color: var(--axon-navy);">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                    <span>Регистрация</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         HERO SECTION (Главный баннер)
+         ============================================ -->
+    <div 
+        class="relative bg-cover bg-center bg-no-repeat h-96"
+        style="background-image: linear-gradient(rgba(16, 37, 74, 0.7), rgba(10, 26, 53, 0.85)), url(https://images.unsplash.com/photo-1651649503984-5b5f3514d6f0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxjYXJnbyUyMHRyYWlufGVufDB8fHx8MTc1OTk0MzU4Nnww&ixlib=rb-4.1.0&q=85)"
+    >
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center text-white fade-in">
+                <h1 class="text-5xl font-bold mb-4">
+                    Железнодорожные перевозки Китай ↔ СНГ
+                </h1>
+                <p class="text-xl mb-8 max-w-3xl mx-auto px-4" style="color: var(--axon-gray-light);">
+                    Найдите оптимальные маршруты для железнодорожных контейнерных перевозок. 
+                    Быстро, надежно, с лучшими ценами от AXON MERX.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         SEARCH FORM (Форма поиска)
+         ============================================ -->
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="bg-white rounded-xl shadow-2xl p-8 -mt-20 relative z-10 mx-4 max-w-6xl search-form" 
+             style="border-top: 4px solid var(--axon-navy);">
+            <div class="mb-6 text-center">
+                <div class="inline-flex items-center space-x-3 px-5 py-3 rounded-lg" 
+                     style="background: linear-gradient(135deg, var(--axon-navy) 0%, var(--axon-navy-light) 100%);">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <span class="font-semibold text-white text-lg">Железнодорожные перевозки</span>
+                </div>
+            </div>
+
+            <form class="space-y-6">
+                <!-- Route Selection -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="relative">
+                        <label class="block text-sm font-semibold mb-2" style="color: var(--axon-navy);">
+                            Станция отправления
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Введите станцию (например: Чэнду)"
+                            class="w-full p-4 border-2 rounded-lg focus:outline-none transition-colors"
+                            style="border-color: var(--axon-gray-light);"
+                        />
+                    </div>
+
+                    <div class="relative">
+                        <label class="block text-sm font-semibold mb-2" style="color: var(--axon-navy);">
+                            Станция назначения
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Введите станцию (например: Минск)"
+                            class="w-full p-4 border-2 rounded-lg focus:outline-none transition-colors"
+                            style="border-color: var(--axon-gray-light);"
+                        />
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="space-y-4">
+                    <label class="block text-sm font-semibold" style="color: var(--axon-navy);">
+                        Диапазон дат отправления
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input
+                            type="date"
+                            class="p-3 border-2 rounded-lg focus:outline-none"
+                            style="border-color: var(--axon-gray-light);"
+                        />
+                        <input
+                            type="date"
+                            class="p-3 border-2 rounded-lg focus:outline-none"
+                            style="border-color: var(--axon-gray-light);"
+                        />
+                    </div>
+                </div>
+
+                <!-- Container and Cargo Details -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2" style="color: var(--axon-navy);">
+                            Размер контейнера
+                        </label>
+                        <select class="w-full p-4 border-2 rounded-lg focus:outline-none" style="border-color: var(--axon-gray-light);">
+                            <option value="">Выберите размер</option>
+                            <option value="20ft">20ft (33м³)</option>
+                            <option value="40ft">40ft (67м³)</option>
+                            <option value="40ft HC">40ft HC (76м³)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2" style="color: var(--axon-navy);">
+                            Количество контейнеров
+                        </label>
+                        <input
+                            type="number"
+                            min="1"
+                            max="50"
+                            value="1"
+                            class="w-full p-4 border-2 rounded-lg focus:outline-none"
+                            style="border-color: var(--axon-gray-light);"
+                        />
+                    </div>
+
+                    <div class="flex items-center">
+                        <div class="flex items-center space-x-3 p-4 rounded-lg border-2" 
+                             style="background-color: rgba(16, 37, 74, 0.05); border-color: var(--axon-navy);">
+                            <input
+                                type="checkbox"
+                                id="dangerous_cargo"
+                                class="w-5 h-5 rounded focus:ring-2"
+                                style="accent-color: var(--axon-navy);"
+                            />
+                            <label for="dangerous_cargo" class="text-sm font-semibold" style="color: var(--axon-navy);">
+                                ⚠️ Опасный груз
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Details -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2" style="color: var(--axon-navy);">
+                            Вес груза (кг)
+                        </label>
+                        <input
+                            type="number"
+                            placeholder="Введите вес груза"
+                            class="w-full p-4 border-2 rounded-lg focus:outline-none"
+                            style="border-color: var(--axon-gray-light);"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2" style="color: var(--axon-navy);">
+                            Объем груза (м³)
+                        </label>
+                        <input
+                            type="number"
+                            placeholder="Введите объем груза"
+                            class="w-full p-4 border-2 rounded-lg focus:outline-none"
+                            style="border-color: var(--axon-gray-light);"
+                        />
+                    </div>
+                </div>
+
+                <!-- Search Button -->
+                <div class="text-center">
+                    <button
+                        type="submit"
+                        class="px-12 py-4 text-white font-bold text-lg rounded-lg transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl btn-axon-primary flex items-center space-x-3 mx-auto"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <span>Найти железнодорожную перевозку</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================
+         SEARCH RESULTS (Пример результатов поиска)
+         ============================================ -->
+    <div class="max-w-6xl mx-auto px-4 py-12">
+        <div class="flex items-center space-x-3 mb-8">
+            <svg class="w-8 h-8" style="color: var(--axon-navy);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+            </svg>
+            <h2 class="text-3xl font-bold" style="color: var(--axon-navy);">
+                Результаты поиска железнодорожных перевозок
+            </h2>
+        </div>
+        
+        <div class="space-y-6">
+            <!-- Result Card 1 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all border-2 p-6 result-card" 
+                 style="border-color: var(--axon-gray-light);">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+                    <!-- Route Info -->
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="p-3 rounded-lg feature-icon">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold" style="color: var(--axon-navy);">
+                                    Чэнду → Москва
+                                </h3>
+                                <p class="text-gray-600">Перевозчик: China Railways Express</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500">Отправление</p>
+                                <p class="font-semibold" style="color: var(--axon-navy);">01.08 - 15.08.2025</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Тип контейнера</p>
+                                <p class="font-semibold" style="color: var(--axon-navy);">40ft</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transit Info -->
+                    <div>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-gray-500 text-sm">Время доставки</p>
+                                <p class="font-semibold" style="color: var(--axon-navy);">15 дней</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">Доступно контейнеров</p>
+                                <p class="font-semibold" style="color: #22c55e;">5+</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price & Booking -->
+                    <div class="text-right">
+                        <div class="mb-4">
+                            <p class="text-gray-500 text-sm">Цена от</p>
+                            <p class="text-3xl font-bold price-display">
+                                $1,000
+                            </p>
+                            <p class="text-gray-500 text-sm">USD за весь груз</p>
+                        </div>
+                        
+                        <button class="w-full text-white py-3 px-6 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg btn-axon-primary flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Забронировать</span>
+                        </button>
+                        
+                        <p class="text-xs text-gray-500 mt-2">
+                            Железнодорожная доставка
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Card 2 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all border-2 p-6 result-card" 
+                 style="border-color: var(--axon-gray-light);">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="p-3 rounded-lg feature-icon">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold" style="color: var(--axon-navy);">
+                                    Пекин → Минск
+                                </h3>
+                                <p class="text-gray-600">Перевозчик: New Silk Road Express</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500">Отправление</p>
+                                <p class="font-semibold" style="color: var(--axon-navy);">01.08 - 20.08.2025</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Тип контейнера</p>
+                                <p class="font-semibold" style="color: var(--axon-navy);">20ft</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-gray-500 text-sm">Время доставки</p>
+                                <p class="font-semibold" style="color: var(--axon-navy);">18 дней</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">Доступно контейнеров</p>
+                                <p class="font-semibold" style="color: #22c55e;">8+</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <div class="mb-4">
+                            <p class="text-gray-500 text-sm">Цена от</p>
+                            <p class="text-3xl font-bold price-display">
+                                $1,001
+                            </p>
+                            <p class="text-gray-500 text-sm">USD за весь груз</p>
+                        </div>
+                        
+                        <button class="w-full text-white py-3 px-6 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg btn-axon-primary flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Забронировать</span>
+                        </button>
+                        
+                        <p class="text-xs text-gray-500 mt-2">
+                            Железнодорожная доставка
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         FEATURES SECTION (Особенности)
+         ============================================ -->
+    <div class="max-w-6xl mx-auto px-4 py-16">
+        <h2 class="text-3xl font-bold text-center mb-12" style="color: var(--axon-navy);">
+            Особенности железнодорожных перевозок AXON MERX
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 feature-icon">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--axon-navy);">Быстрая доставка</h3>
+                <p class="text-gray-600">
+                    Железнодорожные перевозки в 2-3 раза быстрее морских. Чэнду-Москва за 15 дней.
+                </p>
+            </div>
+
+            <div class="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 feature-icon">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--axon-navy);">Оптимальная цена</h3>
+                <p class="text-gray-600">
+                    Железная дорога дешевле авиа и быстрее морского транспорта. Идеальный баланс.
+                </p>
+            </div>
+
+            <div class="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 feature-icon">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--axon-navy);">Широкая сеть</h3>
+                <p class="text-gray-600">
+                    160+ станций в Китае и СНГ. Новый шелковый путь объединяет континенты.
+                </p>
+            </div>
+        </div>
+        
+        <div class="mt-12 rounded-xl p-8 shadow-lg" 
+             style="background: linear-gradient(135deg, rgba(16, 37, 74, 0.05) 0%, rgba(16, 37, 74, 0.1) 100%);">
+            <div class="flex items-center justify-center space-x-3 mb-6">
+                <svg class="w-7 h-7" style="color: var(--axon-navy);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                <h3 class="text-2xl font-bold" style="color: var(--axon-navy);">
+                    Популярные направления
+                </h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h4 class="font-semibold mb-3" style="color: var(--axon-navy);">Из Китая в СНГ:</h4>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" style="color: var(--axon-navy);" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Чэнду → Москва (15 дней)</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" style="color: var(--axon-navy);" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Иу → Минск (18 дней)</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" style="color: var(--axon-navy);" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Сиань → Дуйсбург (16 дней)</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" style="color: var(--axon-navy);" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Урумчи → Алматы (4 дня)</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h4 class="font-semibold mb-3" style="color: var(--axon-navy);">Обратные направления:</h4>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" style="color: var(--axon-navy);" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Москва → Пекин (10 дней)</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" style="color: var(--axon-navy);" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Санкт-Петербург → Шанхай (15 дней)</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" style="color: var(--axon-navy);" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Алматы → Урумчи (4 дня)</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" style="color: var(--axon-navy);" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Минск → Иу (18 дней)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         FOOTER (Подвал сайта)
+         ============================================ -->
+    <footer class="text-white py-12 mt-16" style="background: linear-gradient(135deg, var(--axon-navy-dark) 0%, var(--axon-navy) 100%);">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-12 w-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                                <svg class="w-7 h-7" style="color: var(--axon-navy);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <div class="text-white font-normal" style="font-family: 'Georgia', 'Times New Roman', serif; letter-spacing: 0.1em; font-size: 1.3rem;">
+                                AXON | MERX
+                            </div>
+                        </div>
+                    </div>
+                    <p style="color: var(--axon-gray-light);">
+                        Специализированная платформа для поиска железнодорожных контейнерных перевозок 
+                        между Китаем и странами СНГ.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Наши услуги</h4>
+                    <ul class="space-y-2" style="color: var(--axon-gray-light);">
+                        <li>Железнодорожные контейнерные перевозки</li>
+                        <li>Маршруты Китай ↔ СНГ</li>
+                        <li>Опасные и неопасные грузы</li>
+                        <li>Контейнеры 20ft и 40ft</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Контакты</h4>
+                    <div class="space-y-2" style="color: var(--axon-gray-light);">
+                        <p>Email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dab3b4bcb59abba2b5b4b7bfa8a2f4b9b5b7">[email&#160;protected]</a></p>
+                        <p>Телефон: +7 (495) 123-45-67</p>
+                        <p>Работаем 24/7</p>
+
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t mt-8 pt-8 text-center" style="border-color: rgba(255, 255, 255, 0.2); color: var(--axon-gray-light);">
+                <p>&copy; 2025 AXON MERX. Железнодорожные перевозки Китай-СНГ.</p>
+            </div>
+        </div>
+    </footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

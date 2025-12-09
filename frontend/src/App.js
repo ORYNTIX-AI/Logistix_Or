@@ -5,19 +5,14 @@ import axios from "axios";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Logo Component
+// Logo Component - AXON MERX
 const Logo = ({ size = "normal", onClick }) => {
-  const logoClass = size === "small" ? "h-8 w-8" : "h-12 w-12";
+  const logoClass = size === "small" ? "h-10 w-10" : "h-14 w-14";
   
   const logoElement = (
-    <div className="flex items-center space-x-3">
-      <div className={`${logoClass} bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg`}>
-        <svg className="w-2/3 h-2/3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.5 8H20l-1 9H6.5L7.5 8zM7.5 8L6 4H3"/>
-        </svg>
-      </div>
-      <div className="text-blue-600 font-bold text-xl">
-        Cargo<span className="text-blue-800">Search</span>
+    <div className="flex items-center space-x-4">
+      <div className="axon-logo-text">
+        AXON | MERX
       </div>
     </div>
   );
@@ -209,11 +204,15 @@ const SearchForm = ({ onSearch, loading }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-2xl p-8 -mt-20 relative z-10 mx-4 max-w-6xl">
+    <div className="bg-white rounded-xl shadow-2xl p-8 -mt-20 relative z-10 mx-4 max-w-6xl search-form" 
+         style={{borderTop: '4px solid var(--axon-navy)'}}>
       <div className="mb-6 text-center">
-        <div className="inline-flex items-center space-x-2 bg-blue-100 px-4 py-2 rounded-lg">
-          <span className="text-2xl">🚂</span>
-          <span className="font-semibold text-blue-800">Железнодорожные перевозки</span>
+        <div className="inline-flex items-center space-x-3 px-5 py-3 rounded-lg" 
+             style={{background: 'linear-gradient(135deg, var(--axon-navy) 0%, var(--axon-navy-light) 100%)'}}>
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          <span className="font-semibold text-white text-lg">Железнодорожные перевозки</span>
         </div>
       </div>
 
@@ -221,7 +220,7 @@ const SearchForm = ({ onSearch, loading }) => {
         {/* Route Selection */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="relative">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{color: 'var(--axon-navy)'}}>
               Станция отправления
             </label>
             <input
@@ -231,7 +230,8 @@ const SearchForm = ({ onSearch, loading }) => {
               onFocus={() => handleOriginChange(displayNames.origin_port_display)}
               onBlur={() => setTimeout(() => setShowOriginSuggestions(false), 200)}
               placeholder="Введите станцию (например: Чэнду)"
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+              className="w-full p-4 border-2 rounded-lg focus:outline-none transition-colors"
+              style={{borderColor: 'var(--axon-gray-light)'}}
               required
             />
             {showOriginSuggestions && (
@@ -256,7 +256,7 @@ const SearchForm = ({ onSearch, loading }) => {
           </div>
 
           <div className="relative">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{color: 'var(--axon-navy)'}}>
               Станция назначения
             </label>
             <input
@@ -266,7 +266,8 @@ const SearchForm = ({ onSearch, loading }) => {
               onFocus={() => handleDestChange(displayNames.destination_port_display)}
               onBlur={() => setTimeout(() => setShowDestSuggestions(false), 200)}
               placeholder="Введите станцию (например: Минск)"
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+              className="w-full p-4 border-2 rounded-lg focus:outline-none transition-colors"
+              style={{borderColor: 'var(--axon-gray-light)'}}
               required
             />
             {showDestSuggestions && (
@@ -293,7 +294,7 @@ const SearchForm = ({ onSearch, loading }) => {
 
         {/* Date Range */}
         <div className="space-y-4">
-          <label className="block text-sm font-semibold text-gray-700">
+          <label className="block text-sm font-semibold" style={{color: 'var(--axon-navy)'}}>
             Диапазон дат отправления
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -301,14 +302,16 @@ const SearchForm = ({ onSearch, loading }) => {
               type="date"
               value={searchData.departure_date_from}
               onChange={(e) => handleChange('departure_date_from', e.target.value)}
-              className="p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              className="p-3 border-2 rounded-lg focus:outline-none"
+              style={{borderColor: 'var(--axon-gray-light)'}}
               required
             />
             <input
               type="date"
               value={searchData.departure_date_to}
               onChange={(e) => handleChange('departure_date_to', e.target.value)}
-              className="p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              className="p-3 border-2 rounded-lg focus:outline-none"
+              style={{borderColor: 'var(--axon-gray-light)'}}
               required
             />
           </div>
@@ -317,13 +320,14 @@ const SearchForm = ({ onSearch, loading }) => {
         {/* Container and Cargo Details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{color: 'var(--axon-navy)'}}>
               Размер контейнера
             </label>
             <select
               value={searchData.container_type}
               onChange={(e) => handleChange('container_type', e.target.value)}
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              className="w-full p-4 border-2 rounded-lg focus:outline-none"
+              style={{borderColor: 'var(--axon-gray-light)'}}
               required
             >
               <option value="">Выберите размер</option>
@@ -343,7 +347,7 @@ const SearchForm = ({ onSearch, loading }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{color: 'var(--axon-navy)'}}>
               Количество контейнеров
             </label>
             <input
@@ -352,20 +356,23 @@ const SearchForm = ({ onSearch, loading }) => {
               max="50"
               value={searchData.containers_count}
               onChange={(e) => handleChange('containers_count', parseInt(e.target.value))}
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              className="w-full p-4 border-2 rounded-lg focus:outline-none"
+              style={{borderColor: 'var(--axon-gray-light)'}}
             />
           </div>
 
           <div className="flex items-center">
-            <div className="flex items-center space-x-3 bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
+            <div className="flex items-center space-x-3 p-4 rounded-lg border-2" 
+                 style={{backgroundColor: 'rgba(16, 37, 74, 0.05)', borderColor: 'var(--axon-navy)'}}>
               <input
                 type="checkbox"
                 id="dangerous_cargo"
                 checked={searchData.is_dangerous_cargo}
                 onChange={(e) => handleChange('is_dangerous_cargo', e.target.checked)}
-                className="w-5 h-5 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
+                className="w-5 h-5 rounded focus:ring-2"
+                style={{accentColor: 'var(--axon-navy)'}}
               />
-              <label htmlFor="dangerous_cargo" className="text-sm font-semibold text-orange-700">
+              <label htmlFor="dangerous_cargo" className="text-sm font-semibold" style={{color: 'var(--axon-navy)'}}>
                 ⚠️ Опасный груз
               </label>
             </div>
@@ -375,7 +382,7 @@ const SearchForm = ({ onSearch, loading }) => {
         {/* Additional Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{color: 'var(--axon-navy)'}}>
               Вес груза (кг)
             </label>
             <input
@@ -383,12 +390,13 @@ const SearchForm = ({ onSearch, loading }) => {
               placeholder="Введите вес груза"
               value={searchData.cargo_weight_kg}
               onChange={(e) => handleChange('cargo_weight_kg', e.target.value)}
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              className="w-full p-4 border-2 rounded-lg focus:outline-none"
+              style={{borderColor: 'var(--axon-gray-light)'}}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{color: 'var(--axon-navy)'}}>
               Объем груза (м³)
             </label>
             <input
@@ -396,7 +404,8 @@ const SearchForm = ({ onSearch, loading }) => {
               placeholder="Введите объем груза"
               value={searchData.cargo_volume_m3}
               onChange={(e) => handleChange('cargo_volume_m3', e.target.value)}
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              className="w-full p-4 border-2 rounded-lg focus:outline-none"
+              style={{borderColor: 'var(--axon-gray-light)'}}
             />
           </div>
         </div>
@@ -406,13 +415,22 @@ const SearchForm = ({ onSearch, loading }) => {
           <button
             type="submit"
             disabled={loading}
-            className={`px-12 py-4 text-white font-bold text-lg rounded-lg transition-all ${
+            className={`px-12 py-4 text-white font-bold text-lg rounded-lg transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center space-x-3 mx-auto ${
               loading 
                 ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 shadow-lg hover:shadow-xl'
+                : 'btn-axon-primary'
             }`}
           >
-            {loading ? 'Отправка запроса...' : '🚂 Найти железнодорожную перевозку'}
+            {loading ? (
+              'Отправка запроса...'
+            ) : (
+              <>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span>Найти железнодорожную перевозку</span>
+              </>
+            )}
           </button>
         </div>
       </form>
@@ -430,7 +448,7 @@ const SearchResults = ({ results, loading, onBooking }) => {
     return (
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto" style={{borderColor: 'var(--axon-navy)'}}></div>
           <p className="mt-4 text-gray-600">Отправка запроса и получение результатов...</p>
         </div>
       </div>
@@ -452,23 +470,31 @@ const SearchResults = ({ results, loading, onBooking }) => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
-      <h2 className="text-3xl font-bold text-gray-800 mb-8">
-        📋 Результаты поиска железнодорожных перевозок
-      </h2>
+      <div className="flex items-center space-x-3 mb-8">
+        <svg className="w-8 h-8" style={{color: 'var(--axon-navy)'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+        </svg>
+        <h2 className="text-3xl font-bold" style={{color: 'var(--axon-navy)'}}>
+          Результаты поиска железнодорожных перевозок
+        </h2>
+      </div>
       
       {/* Display webhook response */}
       <div className="space-y-6">
         {Array.isArray(results) ? results.map((result, index) => (
-          <div key={result.id || index} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-200 p-6">
+          <div key={result.id || index} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all border-2 p-6 result-card" 
+               style={{borderColor: 'var(--axon-gray-light)'}}>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
               {/* Route Info */}
               <div className="lg:col-span-2">
                 <div className="flex items-center space-x-4 mb-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <span className="text-2xl">🚂</span>
+                  <div className="p-3 rounded-lg feature-icon">
+                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-800">
+                    <h3 className="text-lg font-bold" style={{color: 'var(--axon-navy)'}}>
                       {result.origin_port} → {result.destination_port}
                     </h3>
                     <p className="text-gray-600">Перевозчик: {result.carrier || 'RZD Express'}</p>
@@ -478,11 +504,11 @@ const SearchResults = ({ results, loading, onBooking }) => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-gray-500">Отправление</p>
-                    <p className="font-semibold">{result.departure_date_range || 'По запросу'}</p>
+                    <p className="font-semibold" style={{color: 'var(--axon-navy)'}}>{result.departure_date_range || 'По запросу'}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Тип контейнера</p>
-                    <p className="font-semibold">{result.container_type}</p>
+                    <p className="font-semibold" style={{color: 'var(--axon-navy)'}}>{result.container_type}</p>
                   </div>
                 </div>
                 
@@ -498,11 +524,11 @@ const SearchResults = ({ results, loading, onBooking }) => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-gray-500 text-sm">Время доставки</p>
-                    <p className="font-semibold">{result.transit_time_days || '15'} дней</p>
+                    <p className="font-semibold" style={{color: 'var(--axon-navy)'}}>{result.transit_time_days || '15'} дней</p>
                   </div>
                   <div>
                     <p className="text-gray-500 text-sm">Доступно контейнеров</p>
-                    <p className="font-semibold text-green-600">{result.available_containers || '5+'}</p>
+                    <p className="font-semibold" style={{color: '#22c55e'}}>{result.available_containers || '5+'}</p>
                   </div>
                   {result.webhook_error && (
                     <div className="bg-yellow-100 p-2 rounded text-xs text-yellow-700">
@@ -516,16 +542,19 @@ const SearchResults = ({ results, loading, onBooking }) => {
               <div className="text-right">
                 <div className="mb-4">
                   <p className="text-gray-500 text-sm">Цена от</p>
-                  <p className="text-3xl font-bold text-blue-600">
+                  <p className="text-3xl font-bold price-display">
                     ${(result.price_from_usd || 950).toLocaleString()}
                   </p>
                   <p className="text-gray-500 text-sm">USD за весь груз</p>
                 </div>
                 
                 <button 
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-md"
+                  className="w-full text-white py-3 px-6 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg btn-axon-primary flex items-center justify-center space-x-2"
                   onClick={() => onBooking(result)}>
-                  📞 Забронировать
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <span>Забронировать</span>
                 </button>
                 
                 <p className="text-xs text-gray-500 mt-2">
@@ -2003,11 +2032,13 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-white shadow-md border-b-2" style={{borderBottomColor: 'var(--axon-navy)'}}>
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <Logo />
-            <p className="text-gray-600 hidden md:block">Платформа поиска железнодорожных перевозок</p>
+            <p className="text-gray-600 hidden md:block ml-4" style={{borderLeft: '2px solid var(--axon-gray-light)', paddingLeft: '1rem'}}>
+              Платформа поиска железнодорожных перевозок
+            </p>
           </div>
           <div className="flex items-center space-x-4">
             {userToken ? (
@@ -2026,7 +2057,7 @@ const App = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={() => setShowUserLogin(true)}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm flex items-center space-x-2"
+                  className="text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 btn-axon-primary hover:shadow-lg transition-all"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
@@ -2035,7 +2066,8 @@ const App = () => {
                 </button>
                 <button
                   onClick={() => setShowRegistration(true)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center space-x-2"
+                  className="bg-white border-2 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 hover:bg-gray-50 transition-all"
+                  style={{borderColor: 'var(--axon-navy)', color: 'var(--axon-navy)'}}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
@@ -2062,17 +2094,17 @@ const App = () => {
       <div 
         className="relative bg-cover bg-center bg-no-repeat h-96"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(https://images.unsplash.com/photo-1651649503984-5b5f3514d6f0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxjYXJnbyUyMHRyYWlufGVufDB8fHx8MTc1OTk0MzU4Nnww&ixlib=rb-4.1.0&q=85)'
+          backgroundImage: 'linear-gradient(rgba(16, 37, 74, 0.7), rgba(10, 26, 53, 0.85)), url(https://images.unsplash.com/photo-1651649503984-5b5f3514d6f0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxjYXJnbyUyMHRyYWlufGVufDB8fHx8MTc1OTk0MzU4Nnww&ixlib=rb-4.1.0&q=85)'
         }}
       >
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white">
+          <div className="text-center text-white fade-in">
             <h1 className="text-5xl font-bold mb-4">
-              🚂 Железнодорожные перевозки Китай ↔ СНГ
+              Железнодорожные перевозки Китай ↔ СНГ
             </h1>
-            <p className="text-xl mb-8 max-w-3xl">
+            <p className="text-xl mb-8 max-w-3xl mx-auto px-4" style={{color: 'var(--axon-gray-light)'}}>
               Найдите оптимальные маршруты для железнодорожных контейнерных перевозок. 
-              Быстро, надежно, с лучшими ценами.
+              Быстро, надежно, с лучшими ценами от AXON MERX.
             </p>
           </div>
         </div>
@@ -2089,61 +2121,115 @@ const App = () => {
       {/* Features Section */}
       {searchResults.length === 0 && !loading && (
         <div className="max-w-6xl mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
-            🚂 Особенности железнодорожных перевозок
+          <h2 className="text-3xl font-bold text-center mb-12" style={{color: 'var(--axon-navy)'}}>
+            Особенности железнодорожных перевозок AXON MERX
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">⚡</span>
+            <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 feature-icon">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">Быстрая доставка</h3>
+              <h3 className="text-xl font-bold mb-3" style={{color: 'var(--axon-navy)'}}>Быстрая доставка</h3>
               <p className="text-gray-600">
                 Железнодорожные перевозки в 2-3 раза быстрее морских. Чэнду-Москва за 15 дней.
               </p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">💰</span>
+            <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 feature-icon">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">Оптимальная цена</h3>
+              <h3 className="text-xl font-bold mb-3" style={{color: 'var(--axon-navy)'}}>Оптимальная цена</h3>
               <p className="text-gray-600">
                 Железная дорога дешевле авиа и быстрее морского транспорта. Идеальный баланс.
               </p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🌍</span>
+            <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 feature-icon">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">Широкая сеть</h3>
+              <h3 className="text-xl font-bold mb-3" style={{color: 'var(--axon-navy)'}}>Широкая сеть</h3>
               <p className="text-gray-600">
                 160+ станций в Китае и СНГ. Новый шелковый путь объединяет континенты.
               </p>
             </div>
           </div>
           
-          <div className="mt-12 bg-blue-50 rounded-xl p-8">
-            <h3 className="text-2xl font-bold text-center mb-6">🛤️ Популярные направления</h3>
+          <div className="mt-12 rounded-xl p-8 shadow-lg" 
+               style={{background: 'linear-gradient(135deg, rgba(16, 37, 74, 0.05) 0%, rgba(16, 37, 74, 0.1) 100%)'}}>
+            <div className="flex items-center justify-center space-x-3 mb-6">
+              <svg className="w-7 h-7" style={{color: 'var(--axon-navy)'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+              </svg>
+              <h3 className="text-2xl font-bold" style={{color: 'var(--axon-navy)'}}>
+                Популярные направления
+              </h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold mb-3">Из Китая в СНГ:</h4>
+              <div className="bg-white p-6 rounded-lg shadow">
+                <h4 className="font-semibold mb-3" style={{color: 'var(--axon-navy)'}}>Из Китая в СНГ:</h4>
                 <ul className="space-y-2 text-gray-700">
-                  <li>🚂 Чэнду → Москва (15 дней)</li>
-                  <li>🚂 Иу → Минск (18 дней)</li>
-                  <li>🚂 Сиань → Дуйсбург (16 дней)</li>
-                  <li>🚂 Урумчи → Алматы (4 дня)</li>
+                  <li className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" style={{color: 'var(--axon-navy)'}} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Чэнду → Москва (15 дней)</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" style={{color: 'var(--axon-navy)'}} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Иу → Минск (18 дней)</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" style={{color: 'var(--axon-navy)'}} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Сиань → Дуйсбург (16 дней)</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" style={{color: 'var(--axon-navy)'}} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Урумчи → Алматы (4 дня)</span>
+                  </li>
                 </ul>
               </div>
-              <div>
-                <h4 className="font-semibold mb-3">Обратные направления:</h4>
+              <div className="bg-white p-6 rounded-lg shadow">
+                <h4 className="font-semibold mb-3" style={{color: 'var(--axon-navy)'}}>Обратные направления:</h4>
                 <ul className="space-y-2 text-gray-700">
-                  <li>🚂 Москва → Пекин (10 дней)</li>
-                  <li>🚂 Санкт-Петербург → Шанхай (15 дней)</li>
-                  <li>🚂 Алматы → Урумчи (4 дня)</li>
-                  <li>🚂 Минск → Иу (18 дней)</li>
+                  <li className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" style={{color: 'var(--axon-navy)'}} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Москва → Пекин (10 дней)</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" style={{color: 'var(--axon-navy)'}} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Санкт-Петербург → Шанхай (15 дней)</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" style={{color: 'var(--axon-navy)'}} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Алматы → Урумчи (4 дня)</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" style={{color: 'var(--axon-navy)'}} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Минск → Иу (18 дней)</span>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -2152,21 +2238,31 @@ const App = () => {
       )}
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-12 mt-16">
+      <footer className="text-white py-12 mt-16" 
+              style={{background: 'linear-gradient(135deg, var(--axon-navy-dark) 0%, var(--axon-navy) 100%)'}}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="mb-4">
-                <Logo />
+                <div className="flex items-center space-x-3">
+                  <div className="h-12 w-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                    <svg className="w-7 h-7" style={{color: 'var(--axon-navy)'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                  </div>
+                  <div className="text-white font-normal" style={{fontFamily: "'Georgia', 'Times New Roman', serif", letterSpacing: '0.1em', fontSize: '1.3rem'}}>
+                    AXON | MERX
+                  </div>
+                </div>
               </div>
-              <p className="text-gray-300">
+              <p style={{color: 'var(--axon-gray-light)'}}>
                 Специализированная платформа для поиска железнодорожных контейнерных перевозок 
                 между Китаем и странами СНГ.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">🚂 Наши услуги</h4>
-              <ul className="space-y-2 text-gray-300">
+              <h4 className="font-semibold mb-4">Наши услуги</h4>
+              <ul className="space-y-2" style={{color: 'var(--axon-gray-light)'}}>
                 <li>Железнодорожные контейнерные перевозки</li>
                 <li>Маршруты Китай ↔ СНГ</li>
                 <li>Опасные и неопасные грузы</li>
@@ -2174,18 +2270,18 @@ const App = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">📞 Контакты</h4>
-              <div className="text-gray-300 space-y-2">
-                <p>Email: info@cargosearch.com</p>
-                <p>Телефон: +7 (495) 123-45-67</p>
+              <h4 className="font-semibold mb-4">Контакты</h4>
+              <div className="space-y-2" style={{color: 'var(--axon-gray-light)'}}>
+                <p>Email: info@axonmerx.com</p>
+                <p>Телефон: +375 (33) 610-89-75</p>
                 <p>Работаем 24/7</p>
-                <p>🚂 Железнодорожные грузоперевозки</p>
               </div>
             </div>
           </div>
           
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 CargoSearch Railway. Железнодорожные перевозки Китай-СНГ.</p>
+          <div className="border-t mt-8 pt-8 text-center" 
+               style={{borderColor: 'rgba(255, 255, 255, 0.2)', color: 'var(--axon-gray-light)'}}>
+            <p>&copy; 2025 AXON MERX. Железнодорожные перевозки Китай-СНГ.</p>
           </div>
         </div>
       </footer>

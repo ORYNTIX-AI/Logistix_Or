@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CargoSearch | Железнодорожные грузоперевозки - Дизайн шаблон</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* ============================================
+           СТИЛИ ИЗ index.css
+           ============================================ */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+                "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+                "Helvetica Neue", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        code {
+            font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+                monospace;
+        }
+
+        /* ============================================
+           СТИЛИ ИЗ App.css
+           ============================================ */
+        .App {
+            text-align: center;
+        }
+
+        .App-header {
+            background-color: #282c34;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(10px + 2vmin);
+        }
+
+        .App-link {
+            color: #61dafb;
+        }
+
+        @keyframes App-logo-spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Custom styles for CargoSearch */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* Form styling */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.5);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            filter: invert(0.3);
+        }
+
+        /* Button hover effects */
+        button {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Loading animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Card hover effects */
+        .hover\:shadow-xl:hover {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Responsive table */
+        @media (max-width: 768px) {
+            .overflow-x-auto {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+        }
+
+        /* Form field focus effects */
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Gradient backgrounds */
+        .bg-gradient-to-r {
+            background-image: linear-gradient(to right, var(--tw-gradient-stops));
+        }
+
+        /* Custom animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Hero section styling */
+        .hero-overlay {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(37, 99, 235, 0.9) 100%);
+        }
+
+        /* Search form styling */
+        .search-form {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Results card styling */
+        .result-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Price display styling */
+        .price-display {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Admin panel styling */
+        .admin-nav {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .admin-tab {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #3B82F6;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .admin-tab.active::after {
+            transform: translateX(0);
+        }
+
+        /* Table styling */
+        .admin-table {
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            border: 1px solid #e5e7eb;
+        }
+
+        .admin-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+
+        .admin-table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Modal and overlay effects */
+        .modal-overlay {
+            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 640px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .search-form {
+                margin: 0 1rem;
+            }
+            
+            .result-card {
+                padding: 1rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+
+        /* Dark mode support (future enhancement) */
+        @media (prefers-color-scheme: dark) {
+            /* Dark mode styles would go here */
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .search-form {
+                border: 2px solid #000;
+            }
+            
+            button {
+                border: 2px solid #000;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    
+    <!-- ============================================
+         HEADER (Шапка сайта)
+         ============================================ -->
+    <div class="bg-white shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <!-- Logo Component -->
+                <div class="flex items-center space-x-3">
+                    <div class="h-12 w-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <svg class="w-2/3 h-2/3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.5 8H20l-1 9H6.5L7.5 8zM7.5 8L6 4H3"/>
+                        </svg>
+                    </div>
+                    <div class="text-blue-600 font-bold text-xl">
+                        Cargo<span class="text-blue-800">Search</span>
+                    </div>
+                </div>
+                <p class="text-gray-600 hidden md:block">Платформа поиска железнодорожных перевозок</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Войти</span>
+                </button>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                    <span>Регистрация</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         HERO SECTION (Главный баннер)
+         ============================================ -->
+    <div 
+        class="relative bg-cover bg-center bg-no-repeat h-96"
+        style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(https://images.unsplash.com/photo-1651649503984-5b5f3514d6f0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxjYXJnbyUyMHRyYWlufGVufDB8fHx8MTc1OTk0MzU4Nnww&ixlib=rb-4.1.0&q=85)"
+    >
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center text-white">
+                <h1 class="text-5xl font-bold mb-4">
+                    🚂 Железнодорожные перевозки Китай ↔ СНГ
+                </h1>
+                <p class="text-xl mb-8 max-w-3xl">
+                    Найдите оптимальные маршруты для железнодорожных контейнерных перевозок. 
+                    Быстро, надежно, с лучшими ценами.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         SEARCH FORM (Форма поиска)
+         ============================================ -->
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="bg-white rounded-xl shadow-2xl p-8 -mt-20 relative z-10 mx-4 max-w-6xl">
+            <div class="mb-6 text-center">
+                <div class="inline-flex items-center space-x-2 bg-blue-100 px-4 py-2 rounded-lg">
+                    <span class="text-2xl">🚂</span>
+                    <span class="font-semibold text-blue-800">Железнодорожные перевозки</span>
+                </div>
+            </div>
+
+            <form class="space-y-6">
+                <!-- Route Selection -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Станция отправления
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Введите станцию (например: Чэнду)"
+                            class="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                        />
+                    </div>
+
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Станция назначения
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Введите станцию (например: Минск)"
+                            class="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                        />
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="space-y-4">
+                    <label class="block text-sm font-semibold text-gray-700">
+                        Диапазон дат отправления
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input
+                            type="date"
+                            class="p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                        />
+                        <input
+                            type="date"
+                            class="p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                        />
+                    </div>
+                </div>
+
+                <!-- Container and Cargo Details -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Размер контейнера
+                        </label>
+                        <select class="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none">
+                            <option value="">Выберите размер</option>
+                            <option value="20ft">20ft (33м³)</option>
+                            <option value="40ft">40ft (67м³)</option>
+                            <option value="40ft HC">40ft HC (76м³)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Количество контейнеров
+                        </label>
+                        <input
+                            type="number"
+                            min="1"
+                            max="50"
+                            value="1"
+                            class="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                        />
+                    </div>
+
+                    <div class="flex items-center">
+                        <div class="flex items-center space-x-3 bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
+                            <input
+                                type="checkbox"
+                                id="dangerous_cargo"
+                                class="w-5 h-5 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
+                            />
+                            <label for="dangerous_cargo" class="text-sm font-semibold text-orange-700">
+                                ⚠️ Опасный груз
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Details -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Вес груза (кг)
+                        </label>
+                        <input
+                            type="number"
+                            placeholder="Введите вес груза"
+                            class="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Объем груза (м³)
+                        </label>
+                        <input
+                            type="number"
+                            placeholder="Введите объем груза"
+                            class="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                        />
+                    </div>
+                </div>
+
+                <!-- Search Button -->
+                <div class="text-center">
+                    <button
+                        type="submit"
+                        class="px-12 py-4 text-white font-bold text-lg rounded-lg transition-all bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                    >
+                        🚂 Найти железнодорожную перевозку
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================
+         SEARCH RESULTS (Пример результатов поиска)
+         ============================================ -->
+    <div class="max-w-6xl mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8">
+            📋 Результаты поиска железнодорожных перевозок
+        </h2>
+        
+        <div class="space-y-6">
+            <!-- Result Card 1 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-200 p-6 result-card">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+                    <!-- Route Info -->
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <span class="text-2xl">🚂</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800">
+                                    Чэнду → Москва
+                                </h3>
+                                <p class="text-gray-600">Перевозчик: China Railways Express</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500">Отправление</p>
+                                <p class="font-semibold">01.08 - 15.08.2025</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Тип контейнера</p>
+                                <p class="font-semibold">40ft</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transit Info -->
+                    <div>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-gray-500 text-sm">Время доставки</p>
+                                <p class="font-semibold">15 дней</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">Доступно контейнеров</p>
+                                <p class="font-semibold text-green-600">5+</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price & Booking -->
+                    <div class="text-right">
+                        <div class="mb-4">
+                            <p class="text-gray-500 text-sm">Цена от</p>
+                            <p class="text-3xl font-bold text-blue-600 price-display">
+                                $1,000
+                            </p>
+                            <p class="text-gray-500 text-sm">USD за весь груз</p>
+                        </div>
+                        
+                        <button class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-md">
+                            📞 Забронировать
+                        </button>
+                        
+                        <p class="text-xs text-gray-500 mt-2">
+                            Железнодорожная доставка
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Card 2 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-200 p-6 result-card">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <span class="text-2xl">🚂</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800">
+                                    Пекин → Минск
+                                </h3>
+                                <p class="text-gray-600">Перевозчик: New Silk Road Express</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500">Отправление</p>
+                                <p class="font-semibold">01.08 - 20.08.2025</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Тип контейнера</p>
+                                <p class="font-semibold">20ft</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-gray-500 text-sm">Время доставки</p>
+                                <p class="font-semibold">18 дней</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">Доступно контейнеров</p>
+                                <p class="font-semibold text-green-600">8+</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <div class="mb-4">
+                            <p class="text-gray-500 text-sm">Цена от</p>
+                            <p class="text-3xl font-bold text-blue-600 price-display">
+                                $1,001
+                            </p>
+                            <p class="text-gray-500 text-sm">USD за весь груз</p>
+                        </div>
+                        
+                        <button class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-md">
+                            📞 Забронировать
+                        </button>
+                        
+                        <p class="text-xs text-gray-500 mt-2">
+                            Железнодорожная доставка
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         FEATURES SECTION (Особенности)
+         ============================================ -->
+    <div class="max-w-6xl mx-auto px-4 py-16">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">
+            🚂 Особенности железнодорожных перевозок
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center p-6">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl">⚡</span>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Быстрая доставка</h3>
+                <p class="text-gray-600">
+                    Железнодорожные перевозки в 2-3 раза быстрее морских. Чэнду-Москва за 15 дней.
+                </p>
+            </div>
+
+            <div class="text-center p-6">
+                <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl">💰</span>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Оптимальная цена</h3>
+                <p class="text-gray-600">
+                    Железная дорога дешевле авиа и быстрее морского транспорта. Идеальный баланс.
+                </p>
+            </div>
+
+            <div class="text-center p-6">
+                <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl">🌍</span>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Широкая сеть</h3>
+                <p class="text-gray-600">
+                    160+ станций в Китае и СНГ. Новый шелковый путь объединяет континенты.
+                </p>
+            </div>
+        </div>
+        
+        <div class="mt-12 bg-blue-50 rounded-xl p-8">
+            <h3 class="text-2xl font-bold text-center mb-6">🛤️ Популярные направления</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold mb-3">Из Китая в СНГ:</h4>
+                    <ul class="space-y-2 text-gray-700">
+                        <li>🚂 Чэнду → Москва (15 дней)</li>
+                        <li>🚂 Иу → Минск (18 дней)</li>
+                        <li>🚂 Сиань → Дуйсбург (16 дней)</li>
+                        <li>🚂 Урумчи → Алматы (4 дня)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Обратные направления:</h4>
+                    <ul class="space-y-2 text-gray-700">
+                        <li>🚂 Москва → Пекин (10 дней)</li>
+                        <li>🚂 Санкт-Петербург → Шанхай (15 дней)</li>
+                        <li>🚂 Алматы → Урумчи (4 дня)</li>
+                        <li>🚂 Минск → Иу (18 дней)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         FOOTER (Подвал сайта)
+         ============================================ -->
+    <footer class="bg-gray-800 text-white py-12 mt-16">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-12 w-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                                <svg class="w-2/3 h-2/3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.5 8H20l-1 9H6.5L7.5 8zM7.5 8L6 4H3"/>
+                                </svg>
+                            </div>
+                            <div class="text-blue-400 font-bold text-xl">
+                                Cargo<span class="text-blue-300">Search</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300">
+                        Специализированная платформа для поиска железнодорожных контейнерных перевозок 
+                        между Китаем и странами СНГ.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">🚂 Наши услуги</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>Железнодорожные контейнерные перевозки</li>
+                        <li>Маршруты Китай ↔ СНГ</li>
+                        <li>Опасные и неопасные грузы</li>
+                        <li>Контейнеры 20ft и 40ft</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">📞 Контакты</h4>
+                    <div class="text-gray-300 space-y-2">
+                        <p>Email: info@cargosearch.com</p>
+                        <p>Телефон: +7 (495) 123-45-67</p>
+                        <p>Работаем 24/7</p>
+                        <p>🚂 Железнодорожные грузоперевозки</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 CargoSearch Railway. Железнодорожные перевозки Китай-СНГ.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================
+         ПРИМЕЧАНИЯ ДЛЯ ДИЗАЙНЕРА
+         ============================================
+         
+         Этот файл содержит:
+         1. Полную HTML структуру страницы
+         2. Все CSS стили из App.css и index.css
+         3. Tailwind CSS через CDN (классы работают)
+         4. Примеры всех основных компонентов:
+            - Header с логотипом и кнопками
+            - Hero section (баннер)
+            - Форма поиска
+            - Карточки результатов поиска
+            - Секция особенностей
+            - Footer
+            
+         Вы можете:
+         - Открыть этот файл в браузере для просмотра
+         - Редактировать HTML структуру
+         - Изменять CSS стили в секции <style>
+         - Менять Tailwind классы в HTML
+         - Тестировать изменения сразу в браузере
+         
+         После завершения дизайна, изменения нужно будет
+         перенести обратно в:
+         - frontend/src/App.js (для структуры)
+         - frontend/src/App.css (для кастомных стилей)
+         - frontend/src/index.css (для базовых стилей)
+         
+         ============================================ -->
+
+</body>
+</html>
